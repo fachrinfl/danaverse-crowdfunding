@@ -8,7 +8,7 @@ cursor_ai:
     auto_review: true
     review_on_pr: true
     review_on_push: false
-    
+
   # Code Quality Standards
   standards:
     typescript:
@@ -17,25 +17,25 @@ cursor_ai:
       no_console_log: true
       error_handling: true
       performance_optimization: true
-      
+
     react:
       functional_components: true
       hooks_only: true
       no_class_components: true
       proper_dependencies: true
-      
+
     go:
       error_handling: true
       context_usage: true
       structured_logging: true
       security_checks: true
-      
+
     solidity:
       openzeppelin_patterns: true
       reentrancy_protection: true
       gas_optimization: true
       event_emission: true
-      
+
   # Security Settings
   security:
     scan_hardcoded_secrets: true
@@ -43,7 +43,7 @@ cursor_ai:
     check_sql_injection: true
     check_insecure_protocols: true
     check_localstorage_usage: true
-    
+
   # Performance Settings
   performance:
     check_array_length_caching: true
@@ -51,7 +51,7 @@ cursor_ai:
     check_database_queries: true
     check_react_optimization: true
     check_import_optimization: true
-    
+
   # DanaVerse Specific Rules
   danaverse_rules:
     english_only: true
@@ -59,33 +59,33 @@ cursor_ai:
     feature_first_organization: true
     atomic_design: true
     monorepo_standards: true
-    
+
   # Review Templates
   review_templates:
     success: |
       ✅ **Excellent work!** No major issues found. The code follows DanaVerse standards.
-      
+
       ### 🎯 DanaVerse Standards Applied:
       - ✅ TypeScript strict mode compliance
       - ✅ Functional components with hooks only
       - ✅ Performance optimizations
       - ✅ Proper error handling
       - ✅ Security best practices
-      
+
     warning: |
       ⚠️ **Good work with minor improvements needed.** Please review the suggestions below.
-      
+
       ### 📝 Review Notes:
       - Consider implementing the suggested improvements
       - All suggestions follow DanaVerse coding standards
       - Focus on performance and security optimizations
-      
+
     error: |
       🚨 **Please review these issues before merging.** Critical issues found that need attention.
-      
+
       ### 🔍 Issues Found:
       - Security vulnerabilities detected
       - Performance issues identified
       - Code quality improvements needed
-      
+
       **Please address these issues before merging.**

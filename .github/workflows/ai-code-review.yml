@@ -51,33 +51,45 @@ jobs:
               // Skip deleted files
               if (file.status === 'deleted') continue;
 
-              // Get file content
-              const { data: content } = await github.rest.repos.getContent({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                path: file.filename,
-                ref: context.payload.pull_request.head.sha,
-              });
+              try {
+                // Get file content with error handling
+                const { data: content } = await github.rest.repos.getContent({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  path: file.filename,
+                  ref: context.payload.pull_request.head.sha,
+                });
 
-              const fileContent = Buffer.from(content.content, 'base64').toString();
+                // Check if content exists and has content property
+                if (!content || !content.content) {
+                  console.log(`Skipping file ${file.filename}: No content available`);
+                  continue;
+                }
 
-              // AI-powered code review based on file type and DanaVerse standards
-              if (file.filename.endsWith('.ts') || file.filename.endsWith('.tsx')) {
-                const tsReview = await reviewTypeScriptFile(file.filename, fileContent, file.patch);
-                reviewComments.push(...tsReview.comments);
-                suggestions.push(...tsReview.suggestions);
-              } else if (file.filename.endsWith('.go')) {
-                const goReview = await reviewGoFile(file.filename, fileContent, file.patch);
-                reviewComments.push(...goReview.comments);
-                suggestions.push(...goReview.suggestions);
-              } else if (file.filename.endsWith('.sol')) {
-                const solReview = await reviewSolidityFile(file.filename, fileContent, file.patch);
-                reviewComments.push(...solReview.comments);
-                suggestions.push(...solReview.suggestions);
-              } else if (file.filename.endsWith('.js') || file.filename.endsWith('.jsx')) {
-                const jsReview = await reviewJavaScriptFile(file.filename, fileContent, file.patch);
-                reviewComments.push(...jsReview.comments);
-                suggestions.push(...jsReview.suggestions);
+                const fileContent = Buffer.from(content.content, 'base64').toString();
+
+                // AI-powered code review based on file type and DanaVerse standards
+                if (file.filename.endsWith('.ts') || file.filename.endsWith('.tsx')) {
+                  const tsReview = await reviewTypeScriptFile(file.filename, fileContent, file.patch);
+                  reviewComments.push(...tsReview.comments);
+                  suggestions.push(...tsReview.suggestions);
+                } else if (file.filename.endsWith('.go')) {
+                  const goReview = await reviewGoFile(file.filename, fileContent, file.patch);
+                  reviewComments.push(...goReview.comments);
+                  suggestions.push(...goReview.suggestions);
+                } else if (file.filename.endsWith('.sol')) {
+                  const solReview = await reviewSolidityFile(file.filename, fileContent, file.patch);
+                  reviewComments.push(...solReview.comments);
+                  suggestions.push(...solReview.suggestions);
+                } else if (file.filename.endsWith('.js') || file.filename.endsWith('.jsx')) {
+                  const jsReview = await reviewJavaScriptFile(file.filename, fileContent, file.patch);
+                  reviewComments.push(...jsReview.comments);
+                  suggestions.push(...jsReview.suggestions);
+                }
+              } catch (error) {
+                console.log(`Error processing file ${file.filename}: ${error.message}`);
+                // Continue with next file instead of failing the entire workflow
+                continue;
               }
             }
 
@@ -368,16 +380,23 @@ jobs:
             for (const file of files) {
               if (file.status === 'deleted') continue;
 
-              const { data: content } = await github.rest.repos.getContent({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                path: file.filename,
-                ref: context.payload.pull_request.head.sha,
-              });
+              try {
+                const { data: content } = await github.rest.repos.getContent({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  path: file.filename,
+                  ref: context.payload.pull_request.head.sha,
+                });
 
-              const fileContent = Buffer.from(content.content, 'base64').toString();
+                // Check if content exists and has content property
+                if (!content || !content.content) {
+                  console.log(`Skipping file ${file.filename}: No content available`);
+                  continue;
+                }
 
-              // Security checks following DanaVerse standards
+                const fileContent = Buffer.from(content.content, 'base64').toString();
+
+                // Security checks following DanaVerse standards
               if (fileContent.includes('password') || fileContent.includes('secret') || fileContent.includes('api_key')) {
                 securityIssues.push({
                   file: file.filename,
@@ -410,12 +429,17 @@ jobs:
                 });
               }
 
-              if (fileContent.includes('http://') && !fileContent.includes('localhost')) {
-                securityIssues.push({
-                  file: file.filename,
-                  issue: 'Insecure HTTP protocol detected',
-                  severity: 'MEDIUM'
-                });
+                if (fileContent.includes('http://') && !fileContent.includes('localhost')) {
+                  securityIssues.push({
+                    file: file.filename,
+                    issue: 'Insecure HTTP protocol detected',
+                    severity: 'MEDIUM'
+                  });
+                }
+              } catch (error) {
+                console.log(`Error processing file ${file.filename}: ${error.message}`);
+                // Continue with next file instead of failing the entire workflow
+                continue;
               }
             }
 
@@ -445,16 +469,23 @@ jobs:
             for (const file of files) {
               if (file.status === 'deleted') continue;
 
-              const { data: content } = await github.rest.repos.getContent({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                path: file.filename,
-                ref: context.payload.pull_request.head.sha,
-              });
+              try {
+                const { data: content } = await github.rest.repos.getContent({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  path: file.filename,
+                  ref: context.payload.pull_request.head.sha,
+                });
 
-              const fileContent = Buffer.from(content.content, 'base64').toString();
+                // Check if content exists and has content property
+                if (!content || !content.content) {
+                  console.log(`Skipping file ${file.filename}: No content available`);
+                  continue;
+                }
 
-              // Performance checks following DanaVerse standards
+                const fileContent = Buffer.from(content.content, 'base64').toString();
+
+                // Performance checks following DanaVerse standards
               if (fileContent.includes('for (let i = 0; i < array.length; i++)') && !fileContent.includes('const length = array.length')) {
                 performanceIssues.push({
                   file: file.filename,
@@ -487,12 +518,17 @@ jobs:
                 });
               }
 
-              if (fileContent.includes('import * as') && !fileContent.includes('import {')) {
-                performanceIssues.push({
-                  file: file.filename,
-                  issue: 'Consider using named imports instead of namespace imports',
-                  impact: 'LOW'
-                });
+                if (fileContent.includes('import * as') && !fileContent.includes('import {')) {
+                  performanceIssues.push({
+                    file: file.filename,
+                    issue: 'Consider using named imports instead of namespace imports',
+                    impact: 'LOW'
+                  });
+                }
+              } catch (error) {
+                console.log(`Error processing file ${file.filename}: ${error.message}`);
+                // Continue with next file instead of failing the entire workflow
+                continue;
               }
             }
 

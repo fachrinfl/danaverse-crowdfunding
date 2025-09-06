@@ -1,0 +1,364 @@
+# DanaVerse Mobile Application - Cursor Rules
+
+## 📱 Mobile App Overview
+Expo SDK 53 React Native application with native builds, TypeScript, and Web3 integration for the DanaVerse crowdfunding platform.
+
+## 🎯 Technology Stack
+- **Framework**: Expo SDK 53 with React Native
+- **Language**: TypeScript (strict mode)
+- **Styling**: NativeWind (Tailwind CSS for React Native)
+- **Navigation**: Expo Router (file-based routing)
+- **State Management**: Zustand + React Query
+- **Package**: com.danaverse
+- **Development**: Native builds (not Expo Go)
+
+## 📁 Project Structure
+```
+apps/mobile/
+├── app/                    # Expo Router pages
+├── components/             # Reusable components
+├── lib/                   # Utilities and configurations
+├── hooks/                 # Custom React hooks
+├── types/                 # TypeScript type definitions
+├── assets/                # Images, fonts, etc.
+├── docs/                  # Documentation
+└── tests/                 # Test files
+```
+
+## 🎨 Component Standards
+
+### Component Structure
+```typescript
+// Use functional components with TypeScript
+interface ComponentProps {
+  title: string;
+  onPress: () => void;
+  children?: React.ReactNode;
+}
+
+export const Component: React.FC<ComponentProps> = ({
+  title,
+  onPress,
+  children
+}) => {
+  // Component logic here
+  return (
+    <View className="flex-1 p-4">
+      <Text className="text-lg font-semibold">{title}</Text>
+      {children}
+    </View>
+  );
+};
+```
+
+### Component Guidelines
+- Use functional components only (no classes)
+- Implement proper TypeScript interfaces
+- Use React.memo for performance optimization
+- Follow atomic design principles
+- Use proper prop validation
+- Implement error boundaries
+
+## 🎯 Expo Router Patterns
+
+### File-based Routing
+```typescript
+// app/(tabs)/index.tsx - Home tab
+export default function HomeScreen() {
+  return <Home />;
+}
+
+// app/projects/[id].tsx - Dynamic route
+export default function ProjectDetailScreen() {
+  const { id } = useLocalSearchParams();
+  return <ProjectDetail projectId={id} />;
+}
+
+// app/_layout.tsx - Root layout
+export default function RootLayout() {
+  return (
+    <Stack>
+      <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+    </Stack>
+  );
+}
+```
+
+### Navigation Guidelines
+- Use Expo Router for all navigation
+- Implement proper deep linking
+- Use typed navigation parameters
+- Handle navigation state properly
+- Implement proper back button handling
+
+## 🎨 Styling with NativeWind
+
+### NativeWind Usage
+```typescript
+// Use Tailwind classes with NativeWind
+<View className="flex-1 bg-white p-4">
+  <Text className="text-lg font-semibold text-gray-900">
+    Project Title
+  </Text>
+  <View className="mt-2 flex-row items-center">
+    <Text className="text-sm text-gray-600">Status: </Text>
+    <Text className="text-sm font-medium text-green-600">Active</Text>
+  </View>
+</View>
+```
+
+### Styling Best Practices
+- Use NativeWind for consistent styling
+- Follow mobile design patterns
+- Use proper spacing and typography
+- Implement dark mode support
+- Use platform-specific styles when needed
+
+## 🔗 Web3 Integration
+
+### Web3 Hooks
+```typescript
+// hooks/useWallet.ts
+export const useWallet = () => {
+  const [account, setAccount] = useState<string | null>(null);
+  const [isConnected, setIsConnected] = useState(false);
+
+  const connectWallet = async () => {
+    // Wallet connection logic
+  };
+
+  return { account, isConnected, connectWallet };
+};
+```
+
+### Blockchain Integration
+- Use ethers.js for Ethereum interaction
+- Implement proper error handling
+- Use proper loading states
+- Handle network switching
+- Implement transaction confirmation
+- Use proper gas estimation
+
+## 🧪 Testing Standards
+
+### Component Testing
+```typescript
+// tests/components/Component.test.tsx
+import { render, screen } from '@testing-library/react-native';
+import { Component } from '../src/components/Component';
+
+describe('Component', () => {
+  it('renders correctly', () => {
+    render(<Component title="Test" onPress={jest.fn()} />);
+    expect(screen.getByText('Test')).toBeTruthy();
+  });
+});
+```
+
+### Testing Guidelines
+- Write unit tests for all components
+- Test user interactions
+- Mock external dependencies
+- Use React Native Testing Library
+- Test on both iOS and Android
+- Aim for 80%+ coverage
+
+## 🚀 Performance Optimization
+
+### Performance Best Practices
+```typescript
+// Use React.memo for expensive components
+export const ExpensiveComponent = React.memo<Props>(({ data }) => {
+  // Component logic
+});
+
+// Use useMemo for expensive calculations
+const expensiveValue = useMemo(() => {
+  return calculateExpensiveValue(data);
+}, [data]);
+
+// Use useCallback for event handlers
+const handlePress = useCallback(() => {
+  onPress();
+}, [onPress]);
+```
+
+### Performance Guidelines
+- Use React.memo for expensive components
+- Implement proper list virtualization
+- Optimize image loading
+- Use proper caching strategies
+- Monitor performance metrics
+- Optimize bundle size
+
+## 📱 Platform-Specific Guidelines
+
+### iOS Guidelines
+```typescript
+// Use platform-specific code when needed
+import { Platform } from 'react-native';
+
+const styles = StyleSheet.create({
+  container: {
+    paddingTop: Platform.OS === 'ios' ? 44 : 24,
+  },
+});
+```
+
+### Android Guidelines
+- Handle back button properly
+- Use proper status bar handling
+- Implement proper keyboard handling
+- Use proper navigation patterns
+
+### Cross-Platform Best Practices
+- Test on both platforms
+- Use platform-specific components when needed
+- Handle platform differences gracefully
+- Use proper accessibility features
+
+## 🔒 Security Guidelines
+
+### Security Best Practices
+- Validate all user inputs
+- Use secure storage for sensitive data
+- Implement proper authentication
+- Use proper certificate pinning
+- Handle sensitive data properly
+
+### Environment Variables
+```typescript
+// Use environment variables for configuration
+const config = {
+  apiUrl: process.env.EXPO_PUBLIC_API_URL,
+  chainId: process.env.EXPO_PUBLIC_CHAIN_ID,
+};
+```
+
+## 🎯 Native Build Configuration
+
+### EAS Build
+```json
+// eas.json
+{
+  "build": {
+    "development": {
+      "developmentClient": true,
+      "distribution": "internal"
+    },
+    "preview": {
+      "distribution": "internal"
+    },
+    "production": {}
+  }
+}
+```
+
+### Build Guidelines
+- Use EAS Build for native builds
+- Configure proper app signing
+- Use proper environment configurations
+- Implement proper app store metadata
+- Use proper versioning strategy
+
+## 🎨 UI/UX Guidelines
+
+### Design System
+```typescript
+// Use consistent design tokens
+const colors = {
+  primary: '#007AFF',
+  secondary: '#5856D6',
+  success: '#34C759',
+  warning: '#FF9500',
+  error: '#FF3B30',
+};
+```
+
+### UI/UX Best Practices
+- Follow platform design guidelines
+- Use consistent spacing and typography
+- Implement proper loading states
+- Use proper error handling
+- Implement proper accessibility
+- Use proper animations
+
+## 🚨 Common Pitfalls to Avoid
+
+### Don't
+- Don't use class components
+- Don't ignore TypeScript errors
+- Don't use Expo Go for development
+- Don't forget platform differences
+- Don't skip performance optimization
+
+### Do
+- Do use TypeScript strict mode
+- Do implement proper error handling
+- Do use native builds
+- Do test on both platforms
+- Do optimize for performance
+
+## 📚 Documentation
+
+### Component Documentation
+```typescript
+/**
+ * Component for displaying project cards
+ * @param project - Project data object
+ * @param onSelect - Callback when project is selected
+ * @param variant - Visual variant of the card
+ */
+interface ProjectCardProps {
+  project: Project;
+  onSelect: (project: Project) => void;
+  variant?: 'default' | 'compact';
+}
+```
+
+### Documentation Standards
+- Use JSDoc for components and functions
+- Document complex business logic
+- Include usage examples
+- Keep documentation up-to-date
+
+## 🔧 Development Commands
+
+```bash
+# Development
+pnpm start                  # Start Expo development server
+pnpm android               # Run on Android
+pnpm ios                   # Run on iOS
+pnpm web                   # Run on web
+
+# Building
+eas build --platform ios   # Build for iOS
+eas build --platform android # Build for Android
+eas build --platform all   # Build for all platforms
+
+# Testing
+pnpm test                  # Run tests
+pnpm test:watch           # Run tests in watch mode
+pnpm test:coverage        # Run tests with coverage
+
+# Linting
+pnpm lint                 # Run ESLint
+pnpm lint:fix            # Fix ESLint errors
+pnpm type-check          # Run TypeScript check
+```
+
+## 🎯 Code Review Checklist
+
+### Before Submitting PR
+- [ ] TypeScript strict mode compliance
+- [ ] All tests pass
+- [ ] No ESLint/Prettier errors
+- [ ] Proper error handling
+- [ ] Performance optimization
+- [ ] Platform compatibility
+- [ ] Accessibility compliance
+- [ ] Native build compatibility
+
+---
+
+**Remember**: Build for mobile, think native, optimize for both platforms! 📱

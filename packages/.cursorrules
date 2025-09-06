@@ -1,0 +1,409 @@
+# DanaVerse Packages - Cursor Rules
+
+## 📦 Packages Overview
+Shared packages and configurations for the DanaVerse monorepo including UI components, configurations, and SDK.
+
+## 🎯 Technology Stack
+- **Language**: TypeScript (strict mode)
+- **Build Tool**: TypeScript compiler
+- **Testing**: Jest
+- **Linting**: ESLint + Prettier
+- **Package Manager**: PNPM
+
+## 📁 Package Structure
+```
+packages/
+├── ui/                     # Shared UI components
+├── config/                 # Shared configurations
+│   ├── eslint/            # ESLint configurations
+│   ├── prettier/          # Prettier configurations
+│   └── typescript/        # TypeScript configurations
+└── sdk/                   # API client SDK
+```
+
+## 🎯 Package Standards
+
+### Package.json Structure
+```json
+{
+  "name": "@danaverse/ui",
+  "version": "1.0.0",
+  "description": "Shared UI components for DanaVerse",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": ["dist"],
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "test": "jest",
+    "lint": "eslint src --ext .ts,.tsx",
+    "lint:fix": "eslint src --ext .ts,.tsx --fix",
+    "type-check": "tsc --noEmit"
+  },
+  "peerDependencies": {
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0"
+  },
+  "devDependencies": {
+    "@types/react": "^18.0.0",
+    "@types/react-dom": "^18.0.0",
+    "typescript": "^5.0.0"
+  }
+}
+```
+
+### Package Guidelines
+- Use proper package naming with @danaverse scope
+- Include proper TypeScript declarations
+- Use proper peer dependencies
+- Include proper build scripts
+- Follow semantic versioning
+
+## 🎨 UI Package Standards
+
+### Component Structure
+```typescript
+// packages/ui/src/components/Button/Button.tsx
+import React from 'react';
+import { cn } from '../../utils/cn';
+
+export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+  variant?: 'primary' | 'secondary' | 'outline';
+  size?: 'sm' | 'md' | 'lg';
+  children: React.ReactNode;
+}
+
+export const Button: React.FC<ButtonProps> = ({
+  variant = 'primary',
+  size = 'md',
+  className,
+  children,
+  ...props
+}) => {
+  return (
+    <button
+      className={cn(
+        'inline-flex items-center justify-center rounded-md font-medium transition-colors',
+        {
+          'bg-primary text-primary-foreground hover:bg-primary/90': variant === 'primary',
+          'bg-secondary text-secondary-foreground hover:bg-secondary/80': variant === 'secondary',
+          'border border-input bg-background hover:bg-accent': variant === 'outline',
+        },
+        {
+          'h-9 px-3 text-sm': size === 'sm',
+          'h-10 px-4 py-2': size === 'md',
+          'h-11 px-8 text-lg': size === 'lg',
+        },
+        className
+      )}
+      {...props}
+    >
+      {children}
+    </button>
+  );
+};
+```
+
+### UI Package Guidelines
+- Use proper TypeScript interfaces
+- Implement proper prop validation
+- Use proper className merging
+- Follow atomic design principles
+- Use proper accessibility attributes
+
+## ⚙️ Config Package Standards
+
+### ESLint Configuration
+```typescript
+// packages/config/eslint/nextjs.js
+module.exports = {
+  extends: [
+    'eslint:recommended',
+    '@typescript-eslint/recommended',
+    'next/core-web-vitals',
+  ],
+  parser: '@typescript-eslint/parser',
+  plugins: ['@typescript-eslint'],
+  rules: {
+    '@typescript-eslint/no-unused-vars': 'error',
+    '@typescript-eslint/no-explicit-any': 'warn',
+    'prefer-const': 'error',
+    'no-var': 'error',
+  },
+  env: {
+    browser: true,
+    es2021: true,
+    node: true,
+  },
+};
+```
+
+### Prettier Configuration
+```typescript
+// packages/config/prettier/index.js
+module.exports = {
+  semi: true,
+  trailingComma: 'es5',
+  singleQuote: true,
+  printWidth: 80,
+  tabWidth: 2,
+  useTabs: false,
+  endOfLine: 'lf',
+};
+```
+
+### TypeScript Configuration
+```json
+// packages/config/typescript/base.json
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "lib": ["dom", "dom.iterable", "ES6"],
+    "allowJs": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "forceConsistentCasingInFileNames": true,
+    "noEmit": true,
+    "esModuleInterop": true,
+    "module": "esnext",
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "jsx": "preserve",
+    "incremental": true,
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ],
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"]
+    }
+  },
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
+  "exclude": ["node_modules"]
+}
+```
+
+### Config Package Guidelines
+- Use proper configuration inheritance
+- Include proper TypeScript support
+- Use proper ESLint rules
+- Include proper Prettier formatting
+- Follow configuration best practices
+
+## 🔗 SDK Package Standards
+
+### SDK Structure
+```typescript
+// packages/sdk/src/index.ts
+export * from './client';
+export * from './types';
+export * from './utils';
+
+// packages/sdk/src/client.ts
+import axios, { AxiosInstance, AxiosResponse } from 'axios';
+import { Project, CreateProjectRequest, UpdateProjectRequest } from './types';
+
+export class DanaVerseClient {
+  private client: AxiosInstance;
+
+  constructor(baseURL: string, apiKey?: string) {
+    this.client = axios.create({
+      baseURL,
+      headers: {
+        'Content-Type': 'application/json',
+        ...(apiKey && { Authorization: `Bearer ${apiKey}` }),
+      },
+    });
+  }
+
+  async getProjects(): Promise<Project[]> {
+    const response: AxiosResponse<Project[]> = await this.client.get('/projects');
+    return response.data;
+  }
+
+  async getProject(id: string): Promise<Project> {
+    const response: AxiosResponse<Project> = await this.client.get(`/projects/${id}`);
+    return response.data;
+  }
+
+  async createProject(data: CreateProjectRequest): Promise<Project> {
+    const response: AxiosResponse<Project> = await this.client.post('/projects', data);
+    return response.data;
+  }
+
+  async updateProject(id: string, data: UpdateProjectRequest): Promise<Project> {
+    const response: AxiosResponse<Project> = await this.client.put(`/projects/${id}`, data);
+    return response.data;
+  }
+
+  async deleteProject(id: string): Promise<void> {
+    await this.client.delete(`/projects/${id}`);
+  }
+}
+```
+
+### SDK Guidelines
+- Use proper TypeScript types
+- Implement proper error handling
+- Use proper HTTP client
+- Include proper authentication
+- Follow API client best practices
+
+## 🧪 Testing Standards
+
+### Package Testing
+```typescript
+// packages/ui/src/components/Button/Button.test.tsx
+import React from 'react';
+import { render, screen, fireEvent } from '@testing-library/react';
+import { Button } from './Button';
+
+describe('Button', () => {
+  it('renders correctly', () => {
+    render(<Button>Click me</Button>);
+    expect(screen.getByRole('button')).toBeInTheDocument();
+  });
+
+  it('handles click events', () => {
+    const handleClick = jest.fn();
+    render(<Button onClick={handleClick}>Click me</Button>);
+    
+    fireEvent.click(screen.getByRole('button'));
+    expect(handleClick).toHaveBeenCalledTimes(1);
+  });
+
+  it('applies variant styles', () => {
+    render(<Button variant="secondary">Secondary</Button>);
+    const button = screen.getByRole('button');
+    expect(button).toHaveClass('bg-secondary');
+  });
+});
+```
+
+### Testing Guidelines
+- Write unit tests for all components
+- Test all props and variants
+- Test user interactions
+- Mock external dependencies
+- Aim for 80%+ coverage
+
+## 🚀 Build & Distribution
+
+### Build Configuration
+```typescript
+// packages/ui/tsconfig.json
+{
+  "extends": "@danaverse/config/typescript/base.json",
+  "compilerOptions": {
+    "outDir": "dist",
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist", "**/*.test.*", "**/*.spec.*"]
+}
+```
+
+### Build Guidelines
+- Use proper TypeScript compilation
+- Generate proper type declarations
+- Include source maps
+- Use proper build output
+- Follow package distribution best practices
+
+## 📚 Documentation Standards
+
+### Package Documentation
+```typescript
+/**
+ * Button component for DanaVerse applications
+ * 
+ * @example
+ * ```tsx
+ * import { Button } from '@danaverse/ui';
+ * 
+ * function App() {
+ *   return (
+ *     <Button variant="primary" onClick={() => console.log('clicked')}>
+ *       Click me
+ *     </Button>
+ *   );
+ * }
+ * ```
+ */
+export interface ButtonProps {
+  /** Button variant */
+  variant?: 'primary' | 'secondary' | 'outline';
+  /** Button size */
+  size?: 'sm' | 'md' | 'lg';
+  /** Button content */
+  children: React.ReactNode;
+}
+```
+
+### Documentation Guidelines
+- Use proper JSDoc documentation
+- Include usage examples
+- Document all props and methods
+- Include type information
+- Keep documentation up-to-date
+
+## 🔧 Development Commands
+
+```bash
+# Build packages
+pnpm build                  # Build all packages
+pnpm --filter @danaverse/ui build  # Build specific package
+
+# Development
+pnpm dev                    # Start development mode
+pnpm --filter @danaverse/ui dev    # Start specific package
+
+# Testing
+pnpm test                   # Run all tests
+pnpm --filter @danaverse/ui test   # Run specific package tests
+
+# Linting
+pnpm lint                   # Lint all packages
+pnpm --filter @danaverse/ui lint   # Lint specific package
+
+# Type checking
+pnpm type-check             # Type check all packages
+pnpm --filter @danaverse/ui type-check  # Type check specific package
+```
+
+## 🎯 Code Review Checklist
+
+### Before Submitting PR
+- [ ] TypeScript strict mode compliance
+- [ ] All tests pass
+- [ ] No ESLint/Prettier errors
+- [ ] Proper prop validation
+- [ ] Accessibility compliance
+- [ ] Documentation updated
+- [ ] Build configuration correct
+- [ ] Package.json properly configured
+
+## 🚨 Common Pitfalls to Avoid
+
+### Don't
+- Don't ignore TypeScript errors
+- Don't skip prop validation
+- Don't forget accessibility
+- Don't ignore build configuration
+- Don't skip documentation
+
+### Do
+- Do use TypeScript strict mode
+- Do implement proper prop validation
+- Do include accessibility attributes
+- Do configure builds properly
+- Do document thoroughly
+
+---
+
+**Remember**: Build reusable, well-tested, and well-documented packages! 📦

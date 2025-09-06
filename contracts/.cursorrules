@@ -1,0 +1,526 @@
+# DanaVerse Smart Contracts - Cursor Rules
+
+## ⛓️ Smart Contracts Overview
+Solidity smart contracts for the DanaVerse crowdfunding platform using Foundry framework with OpenZeppelin security patterns.
+
+## 🎯 Technology Stack
+- **Language**: Solidity 0.8.19+
+- **Framework**: Foundry
+- **Security**: OpenZeppelin contracts
+- **Testing**: Forge tests
+- **Deployment**: Foundry scripts
+
+## 📁 Project Structure
+```
+contracts/
+├── src/                    # Smart contract source files
+├── test/                   # Test files
+├── script/                 # Deployment scripts
+├── lib/                    # Dependencies (OpenZeppelin, etc.)
+├── docs/                   # Documentation
+└── foundry.toml           # Foundry configuration
+```
+
+## 🎯 Solidity Standards
+
+### Contract Structure
+```solidity
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.19;
+
+import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/security/Pausable.sol";
+
+/**
+ * @title Crowdfunding
+ * @dev Main crowdfunding contract for DanaVerse
+ * @author DanaVerse Team
+ */
+contract Crowdfunding is ReentrancyGuard, Ownable, Pausable {
+    // State variables
+    uint256 public constant MIN_FUNDING_AMOUNT = 0.01 ether;
+    uint256 public projectCounter;
+    
+    // Structs
+    struct Project {
+        uint256 id;
+        address creator;
+        string title;
+        string description;
+        uint256 goal;
+        uint256 raised;
+        uint256 deadline;
+        bool completed;
+        bool funded;
+    }
+    
+    // Mappings
+    mapping(uint256 => Project) public projects;
+    mapping(uint256 => mapping(address => uint256)) public contributions;
+    
+    // Events
+    event ProjectCreated(uint256 indexed projectId, address indexed creator, string title);
+    event ContributionMade(uint256 indexed projectId, address indexed contributor, uint256 amount);
+    event ProjectFunded(uint256 indexed projectId, uint256 totalRaised);
+    event FundsWithdrawn(uint256 indexed projectId, address indexed creator, uint256 amount);
+    
+    // Modifiers
+    modifier onlyProjectCreator(uint256 _projectId) {
+        require(projects[_projectId].creator == msg.sender, "Not project creator");
+        _;
+    }
+    
+    modifier projectExists(uint256 _projectId) {
+        require(_projectId > 0 && _projectId <= projectCounter, "Project does not exist");
+        _;
+    }
+    
+    // Functions
+    function createProject(
+        string memory _title,
+        string memory _description,
+        uint256 _goal,
+        uint256 _deadline
+    ) external whenNotPaused returns (uint256) {
+        require(bytes(_title).length > 0, "Title cannot be empty");
+        require(bytes(_description).length > 0, "Description cannot be empty");
+        require(_goal > 0, "Goal must be greater than 0");
+        require(_deadline > block.timestamp, "Deadline must be in the future");
+        
+        projectCounter++;
+        projects[projectCounter] = Project({
+            id: projectCounter,
+            creator: msg.sender,
+            title: _title,
+            description: _description,
+            goal: _goal,
+            raised: 0,
+            deadline: _deadline,
+            completed: false,
+            funded: false
+        });
+        
+        emit ProjectCreated(projectCounter, msg.sender, _title);
+        return projectCounter;
+    }
+    
+    function contribute(uint256 _projectId) external payable nonReentrant whenNotPaused projectExists(_projectId) {
+        Project storage project = projects[_projectId];
+        require(!project.completed, "Project is completed");
+        require(block.timestamp <= project.deadline, "Project deadline has passed");
+        require(msg.value >= MIN_FUNDING_AMOUNT, "Contribution too small");
+        
+        contributions[_projectId][msg.sender] += msg.value;
+        project.raised += msg.value;
+        
+        emit ContributionMade(_projectId, msg.sender, msg.value);
+        
+        // Check if project is fully funded
+        if (project.raised >= project.goal && !project.funded) {
+            project.funded = true;
+            emit ProjectFunded(_projectId, project.raised);
+        }
+    }
+    
+    function withdrawFunds(uint256 _projectId) external onlyProjectCreator(_projectId) projectExists(_projectId) {
+        Project storage project = projects[_projectId];
+        require(project.funded, "Project not funded");
+        require(!project.completed, "Project already completed");
+        require(block.timestamp > project.deadline, "Project deadline not reached");
+        
+        project.completed = true;
+        uint256 amount = project.raised;
+        project.raised = 0;
+        
+        (bool success, ) = payable(msg.sender).call{value: amount}("");
+        require(success, "Transfer failed");
+        
+        emit FundsWithdrawn(_projectId, msg.sender, amount);
+    }
+    
+    function refund(uint256 _projectId) external nonReentrant projectExists(_projectId) {
+        Project storage project = projects[_projectId];
+        require(block.timestamp > project.deadline, "Project deadline not reached");
+        require(!project.funded, "Project was funded");
+        require(contributions[_projectId][msg.sender] > 0, "No contribution to refund");
+        
+        uint256 amount = contributions[_projectId][msg.sender];
+        contributions[_projectId][msg.sender] = 0;
+        
+        (bool success, ) = payable(msg.sender).call{value: amount}("");
+        require(success, "Refund failed");
+    }
+    
+    // View functions
+    function getProject(uint256 _projectId) external view projectExists(_projectId) returns (Project memory) {
+        return projects[_projectId];
+    }
+    
+    function getContribution(uint256 _projectId, address _contributor) external view projectExists(_projectId) returns (uint256) {
+        return contributions[_projectId][_contributor];
+    }
+    
+    function getTotalProjects() external view returns (uint256) {
+        return projectCounter;
+    }
+}
+```
+
+### Solidity Guidelines
+- Use proper SPDX license identifier
+- Use proper pragma version
+- Import OpenZeppelin contracts for security
+- Use proper NatSpec documentation
+- Implement proper access controls
+- Use proper error handling
+
+## 🛡️ Security Standards
+
+### Security Patterns
+```solidity
+// Use OpenZeppelin security patterns
+import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/security/Pausable.sol";
+
+// Implement proper access controls
+modifier onlyOwner() {
+    require(owner() == _msgSender(), "Ownable: caller is not the owner");
+    _;
+}
+
+// Use proper reentrancy protection
+function withdraw() external nonReentrant {
+    // Withdrawal logic
+}
+
+// Use proper pausable functionality
+function emergencyPause() external onlyOwner {
+    _pause();
+}
+```
+
+### Security Guidelines
+- Use OpenZeppelin security patterns
+- Implement proper access controls
+- Use reentrancy guards
+- Implement proper validation
+- Use proper error handling
+- Follow security best practices
+
+## 🧪 Testing Standards
+
+### Forge Testing
+```solidity
+// test/Crowdfunding.t.sol
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.19;
+
+import "forge-std/Test.sol";
+import "../src/Crowdfunding.sol";
+
+contract CrowdfundingTest is Test {
+    Crowdfunding public crowdfunding;
+    address public owner = address(0x1);
+    address public creator = address(0x2);
+    address public contributor = address(0x3);
+    
+    function setUp() public {
+        vm.prank(owner);
+        crowdfunding = new Crowdfunding();
+    }
+    
+    function testCreateProject() public {
+        vm.prank(creator);
+        uint256 projectId = crowdfunding.createProject(
+            "Test Project",
+            "A test project description",
+            10 ether,
+            block.timestamp + 30 days
+        );
+        
+        assertEq(projectId, 1);
+        assertEq(crowdfunding.getTotalProjects(), 1);
+    }
+    
+    function testContribute() public {
+        // Setup project
+        vm.prank(creator);
+        uint256 projectId = crowdfunding.createProject(
+            "Test Project",
+            "A test project description",
+            10 ether,
+            block.timestamp + 30 days
+        );
+        
+        // Contribute
+        vm.deal(contributor, 5 ether);
+        vm.prank(contributor);
+        crowdfunding.contribute{value: 5 ether}(projectId);
+        
+        // Assertions
+        assertEq(crowdfunding.getContribution(projectId, contributor), 5 ether);
+        
+        Crowdfunding.Project memory project = crowdfunding.getProject(projectId);
+        assertEq(project.raised, 5 ether);
+    }
+    
+    function testWithdrawFunds() public {
+        // Setup funded project
+        vm.prank(creator);
+        uint256 projectId = crowdfunding.createProject(
+            "Test Project",
+            "A test project description",
+            5 ether,
+            block.timestamp + 30 days
+        );
+        
+        // Fund project
+        vm.deal(contributor, 5 ether);
+        vm.prank(contributor);
+        crowdfunding.contribute{value: 5 ether}(projectId);
+        
+        // Fast forward past deadline
+        vm.warp(block.timestamp + 31 days);
+        
+        // Withdraw funds
+        uint256 creatorBalanceBefore = creator.balance;
+        vm.prank(creator);
+        crowdfunding.withdrawFunds(projectId);
+        
+        assertEq(creator.balance, creatorBalanceBefore + 5 ether);
+    }
+    
+    function testRefund() public {
+        // Setup unfunded project
+        vm.prank(creator);
+        uint256 projectId = crowdfunding.createProject(
+            "Test Project",
+            "A test project description",
+            10 ether,
+            block.timestamp + 30 days
+        );
+        
+        // Contribute
+        vm.deal(contributor, 5 ether);
+        vm.prank(contributor);
+        crowdfunding.contribute{value: 5 ether}(projectId);
+        
+        // Fast forward past deadline
+        vm.warp(block.timestamp + 31 days);
+        
+        // Refund
+        uint256 contributorBalanceBefore = contributor.balance;
+        vm.prank(contributor);
+        crowdfunding.refund(projectId);
+        
+        assertEq(contributor.balance, contributorBalanceBefore + 5 ether);
+    }
+}
+```
+
+### Testing Guidelines
+- Write comprehensive unit tests
+- Test all functions and edge cases
+- Test security vulnerabilities
+- Use proper test data
+- Aim for 100% coverage
+- Test gas optimization
+
+## 🚀 Gas Optimization
+
+### Gas Optimization Techniques
+```solidity
+// Use proper data types
+uint256 public constant MIN_FUNDING_AMOUNT = 0.01 ether; // Use constants
+
+// Pack structs efficiently
+struct Project {
+    uint256 id;           // 32 bytes
+    address creator;      // 20 bytes
+    uint256 goal;         // 32 bytes
+    uint256 raised;       // 32 bytes
+    uint256 deadline;     // 32 bytes
+    bool completed;       // 1 byte
+    bool funded;          // 1 byte
+    // Total: 150 bytes (packed efficiently)
+}
+
+// Use events instead of storage for historical data
+event ContributionMade(uint256 indexed projectId, address indexed contributor, uint256 amount);
+
+// Use proper loops
+function getProjects(uint256[] memory projectIds) external view returns (Project[] memory) {
+    Project[] memory projects = new Project[](projectIds.length);
+    for (uint256 i = 0; i < projectIds.length; i++) {
+        projects[i] = projects[projectIds[i]];
+    }
+    return projects;
+}
+```
+
+### Gas Optimization Guidelines
+- Use proper data types
+- Pack structs efficiently
+- Use events for historical data
+- Optimize loops
+- Use proper storage patterns
+- Monitor gas usage
+
+## 📊 Events & Logging
+
+### Event Standards
+```solidity
+// Use proper event definitions
+event ProjectCreated(
+    uint256 indexed projectId,
+    address indexed creator,
+    string title,
+    uint256 goal,
+    uint256 deadline
+);
+
+event ContributionMade(
+    uint256 indexed projectId,
+    address indexed contributor,
+    uint256 amount,
+    uint256 totalRaised
+);
+
+event ProjectFunded(
+    uint256 indexed projectId,
+    uint256 totalRaised,
+    uint256 timestamp
+);
+```
+
+### Event Guidelines
+- Use proper event naming
+- Include relevant indexed parameters
+- Use events for off-chain integration
+- Document event parameters
+- Use proper event emission
+
+## 🔒 Access Control
+
+### Access Control Patterns
+```solidity
+// Use proper access control modifiers
+modifier onlyProjectCreator(uint256 _projectId) {
+    require(projects[_projectId].creator == msg.sender, "Not project creator");
+    _;
+}
+
+modifier onlyOwner() {
+    require(owner() == _msgSender(), "Ownable: caller is not the owner");
+    _;
+}
+
+// Use proper role-based access control
+import "@openzeppelin/contracts/access/AccessControl.sol";
+
+contract Crowdfunding is AccessControl {
+    bytes32 public constant ADMIN_ROLE = keccak256("ADMIN_ROLE");
+    bytes32 public constant CREATOR_ROLE = keccak256("CREATOR_ROLE");
+    
+    constructor() {
+        _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
+        _grantRole(ADMIN_ROLE, msg.sender);
+    }
+}
+```
+
+### Access Control Guidelines
+- Use proper access control patterns
+- Implement role-based access control
+- Use proper modifiers
+- Validate permissions
+- Follow security best practices
+
+## 🚨 Common Pitfalls to Avoid
+
+### Don't
+- Don't ignore security patterns
+- Don't use unsafe external calls
+- Don't ignore reentrancy attacks
+- Don't use deprecated functions
+- Don't ignore gas optimization
+
+### Do
+- Do use OpenZeppelin patterns
+- Do implement proper access controls
+- Do use reentrancy guards
+- Do test thoroughly
+- Do optimize for gas
+
+## 📚 Documentation
+
+### NatSpec Documentation
+```solidity
+/**
+ * @title Crowdfunding
+ * @dev Main crowdfunding contract for DanaVerse
+ * @author DanaVerse Team
+ */
+contract Crowdfunding {
+    /**
+     * @dev Creates a new crowdfunding project
+     * @param _title Project title
+     * @param _description Project description
+     * @param _goal Funding goal in wei
+     * @param _deadline Project deadline timestamp
+     * @return projectId The ID of the created project
+     */
+    function createProject(
+        string memory _title,
+        string memory _description,
+        uint256 _goal,
+        uint256 _deadline
+    ) external returns (uint256 projectId) {
+        // Implementation
+    }
+}
+```
+
+### Documentation Standards
+- Use proper NatSpec documentation
+- Document all functions
+- Include parameter descriptions
+- Document return values
+- Include usage examples
+
+## 🔧 Development Commands
+
+```bash
+# Development
+forge build                 # Build contracts
+forge test                  # Run tests
+forge test -vvv            # Run tests with verbose output
+forge coverage             # Run coverage analysis
+
+# Deployment
+forge script script/Deploy.s.sol --rpc-url $RPC_URL --private-key $PRIVATE_KEY --broadcast
+
+# Verification
+forge verify-contract --chain-id $CHAIN_ID --constructor-args $(cast abi-encode "constructor()") $CONTRACT_ADDRESS src/Crowdfunding.sol
+
+# Gas Analysis
+forge test --gas-report
+```
+
+## 🎯 Code Review Checklist
+
+### Before Submitting PR
+- [ ] Solidity code follows best practices
+- [ ] All tests pass
+- [ ] Security patterns implemented
+- [ ] Gas optimization considered
+- [ ] Proper access controls
+- [ ] Comprehensive documentation
+- [ ] Event emissions included
+- [ ] Error handling implemented
+
+---
+
+**Remember**: Write secure, gas-efficient, and well-tested smart contracts! ⛓️

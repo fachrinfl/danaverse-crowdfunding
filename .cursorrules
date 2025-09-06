@@ -1,0 +1,215 @@
+# DanaVerse Monorepo - Cursor Rules
+
+## 🏗️ Project Overview
+DanaVerse is a decentralized crowdfunding platform built as a monorepo with:
+- **Web App**: Next.js 15 with App Router
+- **Mobile App**: Expo SDK 53 with React Native
+- **API**: Go with Gin framework
+- **Smart Contracts**: Solidity with Foundry
+- **Infrastructure**: Terraform
+
+## 🎯 General Standards
+
+### Code Quality
+- Use TypeScript strict mode for all JS/TS projects
+- Follow conventional commits: `type(scope): description`
+- Maintain 80%+ test coverage
+- Use ESLint and Prettier for formatting
+- Follow atomic design principles for UI components
+
+### Architecture
+- Feature-first folder organization by business domain
+- Functional components with hooks only (no classes)
+- Use Zustand for state management
+- Use React Query/TanStack Query for data fetching
+- Performance optimizations: React.memo, useMemo, useCallback
+
+### Naming Conventions
+- Use English for all object keys, schema, and form fields
+- Use camelCase for variables and functions
+- Use PascalCase for components and classes
+- Use kebab-case for file names
+- Use UPPERCASE for constants
+
+### Documentation
+- Write clear, concise comments
+- Use JSDoc for functions and components
+- Keep README files updated
+- Document API endpoints with OpenAPI/Swagger
+
+## 🚀 Development Workflow
+
+### Branch Strategy
+- Use Git Flow: main, develop, staging, feature/*
+- Create feature branches from develop
+- Use conventional commit messages
+- Require PR reviews before merging
+
+### Testing
+- Write unit tests for all business logic
+- Use integration tests for API endpoints
+- Test components with React Testing Library
+- Use E2E tests for critical user flows
+
+### Performance
+- Optimize bundle sizes
+- Use code splitting and lazy loading
+- Implement proper caching strategies
+- Monitor Core Web Vitals
+
+## 🔧 Technology Stack
+
+### Frontend (Web & Mobile)
+- **Framework**: Next.js 15, Expo SDK 53
+- **Language**: TypeScript
+- **Styling**: NativeWind (Tailwind for RN), CSS Modules
+- **State**: Zustand + React Query
+- **Navigation**: Expo Router (file-based)
+- **Testing**: Jest + React Testing Library
+
+### Backend
+- **Language**: Go 1.22+
+- **Framework**: Gin
+- **Database**: PostgreSQL
+- **Authentication**: JWT
+- **Testing**: Go testing package
+
+### Smart Contracts
+- **Language**: Solidity 0.8.19+
+- **Framework**: Foundry
+- **Security**: OpenZeppelin contracts
+- **Testing**: Forge tests
+
+### Infrastructure
+- **IaC**: Terraform
+- **CI/CD**: GitHub Actions
+- **Deployment**: Vercel (web), EAS (mobile), AWS (API)
+
+## 📱 Platform-Specific Rules
+
+### Web Application
+- Use Next.js App Router patterns
+- Implement SSR/SSG where appropriate
+- Use Web3 libraries for blockchain integration
+- Follow responsive design principles
+
+### Mobile Application
+- Use Expo SDK 53+ features
+- Implement native builds (not Expo Go)
+- Use Expo Router for navigation
+- Follow platform-specific design guidelines
+- Optimize for both iOS and Android
+
+### API
+- Follow RESTful API design principles
+- Use proper HTTP status codes
+- Implement rate limiting and validation
+- Use structured logging
+- Follow Go best practices
+
+### Smart Contracts
+- Use OpenZeppelin security patterns
+- Implement proper access controls
+- Use events for off-chain integration
+- Follow gas optimization patterns
+- Write comprehensive tests
+
+## 🛡️ Security & Best Practices
+
+### Security
+- Never commit secrets or API keys
+- Use environment variables for configuration
+- Implement proper input validation
+- Use HTTPS everywhere
+- Follow OWASP security guidelines
+
+### Performance
+- Optimize database queries
+- Use proper indexing
+- Implement caching strategies
+- Monitor performance metrics
+- Use CDN for static assets
+
+### Accessibility
+- Follow WCAG 2.1 AA guidelines
+- Use semantic HTML
+- Implement proper ARIA attributes
+- Test with screen readers
+- Ensure keyboard navigation
+
+## 📚 Documentation Standards
+
+### Code Documentation
+- Use JSDoc for functions and components
+- Document complex business logic
+- Include usage examples
+- Keep comments up-to-date
+
+### API Documentation
+- Use OpenAPI/Swagger specifications
+- Document all endpoints
+- Include request/response examples
+- Document error codes
+
+### README Files
+- Include quick start instructions
+- Document environment setup
+- Include development commands
+- Link to relevant documentation
+
+## 🚨 Common Pitfalls to Avoid
+
+### Don't
+- Don't use class components (use functional components)
+- Don't commit sensitive data
+- Don't ignore TypeScript errors
+- Don't skip tests
+- Don't use deprecated APIs
+- Don't ignore performance warnings
+
+### Do
+- Do use TypeScript strict mode
+- Do write tests for new features
+- Do follow naming conventions
+- Do use proper error handling
+- Do optimize for performance
+- Do keep dependencies updated
+
+## 🔍 Code Review Checklist
+
+### Before Submitting PR
+- [ ] Code follows TypeScript strict mode
+- [ ] All tests pass
+- [ ] No ESLint/Prettier errors
+- [ ] Proper error handling implemented
+- [ ] Performance considerations addressed
+- [ ] Security best practices followed
+- [ ] Documentation updated
+- [ ] Conventional commits used
+
+### Review Focus Areas
+- Code quality and readability
+- Performance implications
+- Security considerations
+- Test coverage
+- Documentation completeness
+- Breaking changes
+- Backward compatibility
+
+## 📞 Getting Help
+
+### Resources
+- [Architecture Overview](docs/architecture/ARCHITECTURE_OVERVIEW.md)
+- [Development Guides](docs/development/)
+- [Deployment Guide](docs/deployment/)
+- [Application Structure](apps/*/docs/)
+
+### Support
+- Create GitHub issues for bugs
+- Use GitHub discussions for questions
+- Check existing documentation first
+- Follow the contributing guidelines
+
+---
+
+**Remember**: Write code that your future self will thank you for! 🚀

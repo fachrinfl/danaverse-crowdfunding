@@ -1,0 +1,318 @@
+# DanaVerse Web Application - Cursor Rules
+
+## 🌐 Web App Overview
+Next.js 15 web application with App Router, TypeScript, and Web3 integration for the DanaVerse crowdfunding platform.
+
+## 🎯 Technology Stack
+- **Framework**: Next.js 15 with App Router
+- **Language**: TypeScript (strict mode)
+- **Styling**: CSS Modules (Tailwind can be added)
+- **State Management**: Zustand + React Query
+- **Blockchain**: Web3 integration
+- **Testing**: Jest + React Testing Library
+
+## 📁 Project Structure
+```
+apps/web/
+├── src/
+│   ├── app/                 # App Router pages
+│   ├── components/          # Reusable components
+│   ├── lib/                # Utilities and configurations
+│   ├── hooks/              # Custom React hooks
+│   ├── types/              # TypeScript type definitions
+│   └── styles/             # Global styles
+├── public/                 # Static assets
+├── docs/                   # Documentation
+└── tests/                  # Test files
+```
+
+## 🎨 Component Standards
+
+### Component Structure
+```typescript
+// Use functional components with TypeScript
+interface ComponentProps {
+  title: string;
+  onAction: () => void;
+  children?: React.ReactNode;
+}
+
+export const Component: React.FC<ComponentProps> = ({
+  title,
+  onAction,
+  children
+}) => {
+  // Component logic here
+  return (
+    <div className="component">
+      <h1>{title}</h1>
+      {children}
+    </div>
+  );
+};
+```
+
+### Component Guidelines
+- Use functional components only (no classes)
+- Implement proper TypeScript interfaces
+- Use React.memo for performance optimization
+- Follow atomic design principles
+- Use proper prop validation
+- Implement error boundaries
+
+## 🎯 Next.js Specific Rules
+
+### App Router Patterns
+```typescript
+// Use App Router file-based routing
+// app/dashboard/page.tsx
+export default function DashboardPage() {
+  return <Dashboard />;
+}
+
+// app/api/projects/route.ts
+export async function GET() {
+  // API route handler
+}
+
+export async function POST(request: Request) {
+  // API route handler
+}
+```
+
+### Data Fetching
+```typescript
+// Use React Query for data fetching
+import { useQuery } from '@tanstack/react-query';
+
+export const useProjects = () => {
+  return useQuery({
+    queryKey: ['projects'],
+    queryFn: fetchProjects,
+    staleTime: 5 * 60 * 1000, // 5 minutes
+  });
+};
+```
+
+### Server Components vs Client Components
+- Use Server Components by default
+- Add 'use client' only when necessary
+- Prefer Server Components for data fetching
+- Use Client Components for interactivity
+
+## 🎨 Styling Guidelines
+
+### CSS Modules
+```css
+/* styles/component.module.css */
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--primary-color);
+}
+```
+
+### Styling Best Practices
+- Use CSS Modules for component-specific styles
+- Use CSS custom properties for theming
+- Follow mobile-first responsive design
+- Use semantic class names
+- Avoid inline styles
+
+## 🔗 Web3 Integration
+
+### Web3 Hooks
+```typescript
+// hooks/useWeb3.ts
+export const useWeb3 = () => {
+  const [account, setAccount] = useState<string | null>(null);
+  const [provider, setProvider] = useState<ethers.Provider | null>(null);
+
+  // Web3 logic here
+  return { account, provider, connect, disconnect };
+};
+```
+
+### Blockchain Integration
+- Use ethers.js for Ethereum interaction
+- Implement proper error handling for blockchain calls
+- Use proper loading states
+- Handle network switching
+- Implement transaction confirmation
+
+## 🧪 Testing Standards
+
+### Component Testing
+```typescript
+// tests/components/Component.test.tsx
+import { render, screen } from '@testing-library/react';
+import { Component } from '../src/components/Component';
+
+describe('Component', () => {
+  it('renders correctly', () => {
+    render(<Component title="Test" onAction={jest.fn()} />);
+    expect(screen.getByText('Test')).toBeInTheDocument();
+  });
+});
+```
+
+### Testing Guidelines
+- Write unit tests for all components
+- Test user interactions
+- Mock external dependencies
+- Use React Testing Library
+- Aim for 80%+ coverage
+
+## 🚀 Performance Optimization
+
+### Code Splitting
+```typescript
+// Use dynamic imports for code splitting
+const LazyComponent = dynamic(() => import('./LazyComponent'), {
+  loading: () => <LoadingSpinner />,
+});
+```
+
+### Performance Best Practices
+- Use Next.js Image component for images
+- Implement proper caching strategies
+- Use React.memo for expensive components
+- Optimize bundle size
+- Monitor Core Web Vitals
+
+## 🔒 Security Guidelines
+
+### Security Best Practices
+- Validate all user inputs
+- Use HTTPS everywhere
+- Implement proper CSP headers
+- Sanitize user-generated content
+- Use secure authentication patterns
+
+### Environment Variables
+```typescript
+// Use environment variables for configuration
+const config = {
+  apiUrl: process.env.NEXT_PUBLIC_API_URL,
+  chainId: process.env.NEXT_PUBLIC_CHAIN_ID,
+};
+```
+
+## 📱 Responsive Design
+
+### Mobile-First Approach
+```css
+/* Mobile first responsive design */
+.container {
+  padding: 1rem;
+}
+
+@media (min-width: 768px) {
+  .container {
+    padding: 2rem;
+  }
+}
+```
+
+### Responsive Guidelines
+- Design mobile-first
+- Use flexible layouts
+- Test on multiple devices
+- Use proper viewport meta tag
+- Implement touch-friendly interactions
+
+## 🎯 SEO & Accessibility
+
+### SEO Best Practices
+- Use proper meta tags
+- Implement structured data
+- Use semantic HTML
+- Optimize page titles and descriptions
+- Implement proper URL structure
+
+### Accessibility
+- Use semantic HTML elements
+- Implement proper ARIA attributes
+- Ensure keyboard navigation
+- Test with screen readers
+- Follow WCAG 2.1 AA guidelines
+
+## 🚨 Common Pitfalls to Avoid
+
+### Don't
+- Don't use class components
+- Don't ignore TypeScript errors
+- Don't use inline styles
+- Don't forget error boundaries
+- Don't skip performance optimization
+
+### Do
+- Do use TypeScript strict mode
+- Do implement proper error handling
+- Do use CSS Modules
+- Do optimize for performance
+- Do test thoroughly
+
+## 📚 Documentation
+
+### Component Documentation
+```typescript
+/**
+ * Component for displaying project cards
+ * @param project - Project data object
+ * @param onSelect - Callback when project is selected
+ * @param variant - Visual variant of the card
+ */
+interface ProjectCardProps {
+  project: Project;
+  onSelect: (project: Project) => void;
+  variant?: 'default' | 'compact';
+}
+```
+
+### Documentation Standards
+- Use JSDoc for components and functions
+- Document complex business logic
+- Include usage examples
+- Keep documentation up-to-date
+
+## 🔧 Development Commands
+
+```bash
+# Development
+pnpm dev                    # Start development server
+pnpm build                  # Build for production
+pnpm start                  # Start production server
+
+# Testing
+pnpm test                   # Run tests
+pnpm test:watch            # Run tests in watch mode
+pnpm test:coverage         # Run tests with coverage
+
+# Linting
+pnpm lint                  # Run ESLint
+pnpm lint:fix             # Fix ESLint errors
+pnpm type-check           # Run TypeScript check
+```
+
+## 🎯 Code Review Checklist
+
+### Before Submitting PR
+- [ ] TypeScript strict mode compliance
+- [ ] All tests pass
+- [ ] No ESLint/Prettier errors
+- [ ] Proper error handling
+- [ ] Performance optimization
+- [ ] Accessibility compliance
+- [ ] Responsive design
+- [ ] SEO optimization
+
+---
+
+**Remember**: Build for the web, think mobile-first, optimize for performance! 🌐

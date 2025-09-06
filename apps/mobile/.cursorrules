@@ -1,9 +1,11 @@
 # DanaVerse Mobile Application - Cursor Rules
 
 ## 📱 Mobile App Overview
+
 Expo SDK 53 React Native application with native builds, TypeScript, and Web3 integration for the DanaVerse crowdfunding platform.
 
 ## 🎯 Technology Stack
+
 - **Framework**: Expo SDK 53 with React Native
 - **Language**: TypeScript (strict mode)
 - **Styling**: NativeWind (Tailwind CSS for React Native)
@@ -13,6 +15,7 @@ Expo SDK 53 React Native application with native builds, TypeScript, and Web3 in
 - **Development**: Native builds (not Expo Go)
 
 ## 📁 Project Structure
+
 ```
 apps/mobile/
 ├── app/                    # Expo Router pages
@@ -28,6 +31,7 @@ apps/mobile/
 ## 🎨 Component Standards
 
 ### Component Structure
+
 ```typescript
 // Use functional components with TypeScript
 interface ComponentProps {
@@ -52,6 +56,7 @@ export const Component: React.FC<ComponentProps> = ({
 ```
 
 ### Component Guidelines
+
 - Use functional components only (no classes)
 - Implement proper TypeScript interfaces
 - Use React.memo for performance optimization
@@ -62,6 +67,7 @@ export const Component: React.FC<ComponentProps> = ({
 ## 🎯 Expo Router Patterns
 
 ### File-based Routing
+
 ```typescript
 // app/(tabs)/index.tsx - Home tab
 export default function HomeScreen() {
@@ -85,6 +91,7 @@ export default function RootLayout() {
 ```
 
 ### Navigation Guidelines
+
 - Use Expo Router for all navigation
 - Implement proper deep linking
 - Use typed navigation parameters
@@ -94,6 +101,7 @@ export default function RootLayout() {
 ## 🎨 Styling with NativeWind
 
 ### NativeWind Usage
+
 ```typescript
 // Use Tailwind classes with NativeWind
 <View className="flex-1 bg-white p-4">
@@ -108,6 +116,7 @@ export default function RootLayout() {
 ```
 
 ### Styling Best Practices
+
 - Use NativeWind for consistent styling
 - Follow mobile design patterns
 - Use proper spacing and typography
@@ -117,6 +126,7 @@ export default function RootLayout() {
 ## 🔗 Web3 Integration
 
 ### Web3 Hooks
+
 ```typescript
 // hooks/useWallet.ts
 export const useWallet = () => {
@@ -132,6 +142,7 @@ export const useWallet = () => {
 ```
 
 ### Blockchain Integration
+
 - Use ethers.js for Ethereum interaction
 - Implement proper error handling
 - Use proper loading states
@@ -142,6 +153,7 @@ export const useWallet = () => {
 ## 🧪 Testing Standards
 
 ### Component Testing
+
 ```typescript
 // tests/components/Component.test.tsx
 import { render, screen } from '@testing-library/react-native';
@@ -156,6 +168,7 @@ describe('Component', () => {
 ```
 
 ### Testing Guidelines
+
 - Write unit tests for all components
 - Test user interactions
 - Mock external dependencies
@@ -166,6 +179,7 @@ describe('Component', () => {
 ## 🚀 Performance Optimization
 
 ### Performance Best Practices
+
 ```typescript
 // Use React.memo for expensive components
 export const ExpensiveComponent = React.memo<Props>(({ data }) => {
@@ -184,6 +198,7 @@ const handlePress = useCallback(() => {
 ```
 
 ### Performance Guidelines
+
 - Use React.memo for expensive components
 - Implement proper list virtualization
 - Optimize image loading
@@ -194,6 +209,7 @@ const handlePress = useCallback(() => {
 ## 📱 Platform-Specific Guidelines
 
 ### iOS Guidelines
+
 ```typescript
 // Use platform-specific code when needed
 import { Platform } from 'react-native';
@@ -206,12 +222,14 @@ const styles = StyleSheet.create({
 ```
 
 ### Android Guidelines
+
 - Handle back button properly
 - Use proper status bar handling
 - Implement proper keyboard handling
 - Use proper navigation patterns
 
 ### Cross-Platform Best Practices
+
 - Test on both platforms
 - Use platform-specific components when needed
 - Handle platform differences gracefully
@@ -220,6 +238,7 @@ const styles = StyleSheet.create({
 ## 🔒 Security Guidelines
 
 ### Security Best Practices
+
 - Validate all user inputs
 - Use secure storage for sensitive data
 - Implement proper authentication
@@ -227,6 +246,7 @@ const styles = StyleSheet.create({
 - Handle sensitive data properly
 
 ### Environment Variables
+
 ```typescript
 // Use environment variables for configuration
 const config = {
@@ -238,6 +258,7 @@ const config = {
 ## 🎯 Native Build Configuration
 
 ### EAS Build
+
 ```json
 // eas.json
 {
@@ -255,6 +276,7 @@ const config = {
 ```
 
 ### Build Guidelines
+
 - Use EAS Build for native builds
 - Configure proper app signing
 - Use proper environment configurations
@@ -264,6 +286,7 @@ const config = {
 ## 🎨 UI/UX Guidelines
 
 ### Design System
+
 ```typescript
 // Use consistent design tokens
 const colors = {
@@ -276,6 +299,7 @@ const colors = {
 ```
 
 ### UI/UX Best Practices
+
 - Follow platform design guidelines
 - Use consistent spacing and typography
 - Implement proper loading states
@@ -286,6 +310,7 @@ const colors = {
 ## 🚨 Common Pitfalls to Avoid
 
 ### Don't
+
 - Don't use class components
 - Don't ignore TypeScript errors
 - Don't use Expo Go for development
@@ -293,6 +318,7 @@ const colors = {
 - Don't skip performance optimization
 
 ### Do
+
 - Do use TypeScript strict mode
 - Do implement proper error handling
 - Do use native builds
@@ -302,6 +328,7 @@ const colors = {
 ## 📚 Documentation
 
 ### Component Documentation
+
 ```typescript
 /**
  * Component for displaying project cards
@@ -317,6 +344,7 @@ interface ProjectCardProps {
 ```
 
 ### Documentation Standards
+
 - Use JSDoc for components and functions
 - Document complex business logic
 - Include usage examples
@@ -350,6 +378,7 @@ pnpm type-check          # Run TypeScript check
 ## 🎯 Code Review Checklist
 
 ### Before Submitting PR
+
 - [ ] TypeScript strict mode compliance
 - [ ] All tests pass
 - [ ] No ESLint/Prettier errors

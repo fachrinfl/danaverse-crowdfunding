@@ -1,9 +1,11 @@
 # DanaVerse Web Application - Cursor Rules
 
 ## 🌐 Web App Overview
+
 Next.js 15 web application with App Router, TypeScript, and Web3 integration for the DanaVerse crowdfunding platform.
 
 ## 🎯 Technology Stack
+
 - **Framework**: Next.js 15 with App Router
 - **Language**: TypeScript (strict mode)
 - **Styling**: CSS Modules (Tailwind can be added)
@@ -12,6 +14,7 @@ Next.js 15 web application with App Router, TypeScript, and Web3 integration for
 - **Testing**: Jest + React Testing Library
 
 ## 📁 Project Structure
+
 ```
 apps/web/
 ├── src/
@@ -29,6 +32,7 @@ apps/web/
 ## 🎨 Component Standards
 
 ### Component Structure
+
 ```typescript
 // Use functional components with TypeScript
 interface ComponentProps {
@@ -53,6 +57,7 @@ export const Component: React.FC<ComponentProps> = ({
 ```
 
 ### Component Guidelines
+
 - Use functional components only (no classes)
 - Implement proper TypeScript interfaces
 - Use React.memo for performance optimization
@@ -63,6 +68,7 @@ export const Component: React.FC<ComponentProps> = ({
 ## 🎯 Next.js Specific Rules
 
 ### App Router Patterns
+
 ```typescript
 // Use App Router file-based routing
 // app/dashboard/page.tsx
@@ -81,6 +87,7 @@ export async function POST(request: Request) {
 ```
 
 ### Data Fetching
+
 ```typescript
 // Use React Query for data fetching
 import { useQuery } from '@tanstack/react-query';
@@ -95,6 +102,7 @@ export const useProjects = () => {
 ```
 
 ### Server Components vs Client Components
+
 - Use Server Components by default
 - Add 'use client' only when necessary
 - Prefer Server Components for data fetching
@@ -103,6 +111,7 @@ export const useProjects = () => {
 ## 🎨 Styling Guidelines
 
 ### CSS Modules
+
 ```css
 /* styles/component.module.css */
 .container {
@@ -119,6 +128,7 @@ export const useProjects = () => {
 ```
 
 ### Styling Best Practices
+
 - Use CSS Modules for component-specific styles
 - Use CSS custom properties for theming
 - Follow mobile-first responsive design
@@ -128,6 +138,7 @@ export const useProjects = () => {
 ## 🔗 Web3 Integration
 
 ### Web3 Hooks
+
 ```typescript
 // hooks/useWeb3.ts
 export const useWeb3 = () => {
@@ -140,6 +151,7 @@ export const useWeb3 = () => {
 ```
 
 ### Blockchain Integration
+
 - Use ethers.js for Ethereum interaction
 - Implement proper error handling for blockchain calls
 - Use proper loading states
@@ -149,6 +161,7 @@ export const useWeb3 = () => {
 ## 🧪 Testing Standards
 
 ### Component Testing
+
 ```typescript
 // tests/components/Component.test.tsx
 import { render, screen } from '@testing-library/react';
@@ -163,6 +176,7 @@ describe('Component', () => {
 ```
 
 ### Testing Guidelines
+
 - Write unit tests for all components
 - Test user interactions
 - Mock external dependencies
@@ -172,6 +186,7 @@ describe('Component', () => {
 ## 🚀 Performance Optimization
 
 ### Code Splitting
+
 ```typescript
 // Use dynamic imports for code splitting
 const LazyComponent = dynamic(() => import('./LazyComponent'), {
@@ -180,6 +195,7 @@ const LazyComponent = dynamic(() => import('./LazyComponent'), {
 ```
 
 ### Performance Best Practices
+
 - Use Next.js Image component for images
 - Implement proper caching strategies
 - Use React.memo for expensive components
@@ -189,6 +205,7 @@ const LazyComponent = dynamic(() => import('./LazyComponent'), {
 ## 🔒 Security Guidelines
 
 ### Security Best Practices
+
 - Validate all user inputs
 - Use HTTPS everywhere
 - Implement proper CSP headers
@@ -196,6 +213,7 @@ const LazyComponent = dynamic(() => import('./LazyComponent'), {
 - Use secure authentication patterns
 
 ### Environment Variables
+
 ```typescript
 // Use environment variables for configuration
 const config = {
@@ -207,6 +225,7 @@ const config = {
 ## 📱 Responsive Design
 
 ### Mobile-First Approach
+
 ```css
 /* Mobile first responsive design */
 .container {
@@ -221,6 +240,7 @@ const config = {
 ```
 
 ### Responsive Guidelines
+
 - Design mobile-first
 - Use flexible layouts
 - Test on multiple devices
@@ -230,6 +250,7 @@ const config = {
 ## 🎯 SEO & Accessibility
 
 ### SEO Best Practices
+
 - Use proper meta tags
 - Implement structured data
 - Use semantic HTML
@@ -237,6 +258,7 @@ const config = {
 - Implement proper URL structure
 
 ### Accessibility
+
 - Use semantic HTML elements
 - Implement proper ARIA attributes
 - Ensure keyboard navigation
@@ -246,6 +268,7 @@ const config = {
 ## 🚨 Common Pitfalls to Avoid
 
 ### Don't
+
 - Don't use class components
 - Don't ignore TypeScript errors
 - Don't use inline styles
@@ -253,6 +276,7 @@ const config = {
 - Don't skip performance optimization
 
 ### Do
+
 - Do use TypeScript strict mode
 - Do implement proper error handling
 - Do use CSS Modules
@@ -262,6 +286,7 @@ const config = {
 ## 📚 Documentation
 
 ### Component Documentation
+
 ```typescript
 /**
  * Component for displaying project cards
@@ -277,6 +302,7 @@ interface ProjectCardProps {
 ```
 
 ### Documentation Standards
+
 - Use JSDoc for components and functions
 - Document complex business logic
 - Include usage examples
@@ -304,6 +330,7 @@ pnpm type-check           # Run TypeScript check
 ## 🎯 Code Review Checklist
 
 ### Before Submitting PR
+
 - [ ] TypeScript strict mode compliance
 - [ ] All tests pass
 - [ ] No ESLint/Prettier errors

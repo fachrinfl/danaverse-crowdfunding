@@ -1,9 +1,11 @@
 # DanaVerse API - Cursor Rules
 
 ## 🚀 API Overview
+
 Go-based REST API with Gin framework, PostgreSQL database, and blockchain integration for the DanaVerse crowdfunding platform.
 
 ## 🎯 Technology Stack
+
 - **Language**: Go 1.22+
 - **Framework**: Gin web framework
 - **Database**: PostgreSQL with migrations
@@ -12,6 +14,7 @@ Go-based REST API with Gin framework, PostgreSQL database, and blockchain integr
 - **Testing**: Go testing package
 
 ## 📁 Project Structure
+
 ```
 apps/api/
 ├── cmd/                   # Application entry points
@@ -30,6 +33,7 @@ apps/api/
 ## 🎯 Go Standards
 
 ### Code Structure
+
 ```go
 // Use proper Go package structure
 package handlers
@@ -48,7 +52,7 @@ func GetProjects(c *gin.Context) {
         })
         return
     }
-    
+
     c.JSON(http.StatusOK, gin.H{
         "data": projects,
     })
@@ -56,6 +60,7 @@ func GetProjects(c *gin.Context) {
 ```
 
 ### Go Guidelines
+
 - Use proper package structure
 - Follow Go naming conventions
 - Use proper error handling
@@ -66,6 +71,7 @@ func GetProjects(c *gin.Context) {
 ## 🎯 API Design Standards
 
 ### RESTful API Design
+
 ```go
 // Use proper HTTP methods and status codes
 func CreateProject(c *gin.Context) {
@@ -76,7 +82,7 @@ func CreateProject(c *gin.Context) {
         })
         return
     }
-    
+
     // Business logic here
     createdProject, err := projectService.Create(project)
     if err != nil {
@@ -85,7 +91,7 @@ func CreateProject(c *gin.Context) {
         })
         return
     }
-    
+
     c.JSON(http.StatusCreated, gin.H{
         "data": createdProject,
     })
@@ -93,6 +99,7 @@ func CreateProject(c *gin.Context) {
 ```
 
 ### API Guidelines
+
 - Use proper HTTP status codes
 - Implement proper request validation
 - Use consistent response format
@@ -103,6 +110,7 @@ func CreateProject(c *gin.Context) {
 ## 🗄️ Database Standards
 
 ### Model Definition
+
 ```go
 // models/project.go
 type Project struct {
@@ -118,6 +126,7 @@ type Project struct {
 ```
 
 ### Database Guidelines
+
 - Use proper GORM models
 - Implement proper migrations
 - Use proper indexing
@@ -128,6 +137,7 @@ type Project struct {
 ## 🔐 Authentication & Authorization
 
 ### JWT Implementation
+
 ```go
 // middleware/auth.go
 func AuthMiddleware() gin.HandlerFunc {
@@ -140,7 +150,7 @@ func AuthMiddleware() gin.HandlerFunc {
             c.Abort()
             return
         }
-        
+
         // Validate token
         claims, err := validateToken(token)
         if err != nil {
@@ -150,7 +160,7 @@ func AuthMiddleware() gin.HandlerFunc {
             c.Abort()
             return
         }
-        
+
         c.Set("user_id", claims.UserID)
         c.Next()
     }
@@ -158,6 +168,7 @@ func AuthMiddleware() gin.HandlerFunc {
 ```
 
 ### Security Guidelines
+
 - Use proper JWT implementation
 - Implement proper password hashing
 - Use proper rate limiting
@@ -168,6 +179,7 @@ func AuthMiddleware() gin.HandlerFunc {
 ## 🔗 Blockchain Integration
 
 ### Ethereum Integration
+
 ```go
 // services/blockchain.go
 type BlockchainService struct {
@@ -180,12 +192,13 @@ func (s *BlockchainService) GetBalance(address string) (*big.Int, error) {
     if err != nil {
         return nil, err
     }
-    
+
     return balance, nil
 }
 ```
 
 ### Blockchain Guidelines
+
 - Use proper error handling for blockchain calls
 - Implement proper gas estimation
 - Use proper transaction confirmation
@@ -196,6 +209,7 @@ func (s *BlockchainService) GetBalance(address string) (*big.Int, error) {
 ## 🧪 Testing Standards
 
 ### Unit Testing
+
 ```go
 // tests/handlers/project_test.go
 func TestGetProjects(t *testing.T) {
@@ -203,12 +217,12 @@ func TestGetProjects(t *testing.T) {
     gin.SetMode(gin.TestMode)
     router := gin.New()
     router.GET("/projects", GetProjects)
-    
+
     // Test
     req, _ := http.NewRequest("GET", "/projects", nil)
     w := httptest.NewRecorder()
     router.ServeHTTP(w, req)
-    
+
     // Assertions
     assert.Equal(t, http.StatusOK, w.Code)
     assert.Contains(t, w.Body.String(), "data")
@@ -216,6 +230,7 @@ func TestGetProjects(t *testing.T) {
 ```
 
 ### Testing Guidelines
+
 - Write unit tests for all handlers
 - Test business logic thoroughly
 - Mock external dependencies
@@ -226,6 +241,7 @@ func TestGetProjects(t *testing.T) {
 ## 🚀 Performance Optimization
 
 ### Performance Best Practices
+
 ```go
 // Use proper database queries
 func (r *ProjectRepository) GetProjectsWithPagination(limit, offset int) ([]models.Project, error) {
@@ -240,13 +256,13 @@ func (s *ProjectService) GetProject(id uint) (*models.Project, error) {
     if cached, found := s.cache.Get(fmt.Sprintf("project:%d", id)); found {
         return cached.(*models.Project), nil
     }
-    
+
     // Fetch from database
     project, err := s.repository.GetByID(id)
     if err != nil {
         return nil, err
     }
-    
+
     // Cache the result
     s.cache.Set(fmt.Sprintf("project:%d", id), project, time.Hour)
     return project, nil
@@ -254,6 +270,7 @@ func (s *ProjectService) GetProject(id uint) (*models.Project, error) {
 ```
 
 ### Performance Guidelines
+
 - Use proper database indexing
 - Implement proper caching
 - Use proper connection pooling
@@ -264,6 +281,7 @@ func (s *ProjectService) GetProject(id uint) (*models.Project, error) {
 ## 📊 Logging & Monitoring
 
 ### Structured Logging
+
 ```go
 // Use structured logging
 import "github.com/sirupsen/logrus"
@@ -273,16 +291,17 @@ func (h *ProjectHandler) CreateProject(c *gin.Context) {
         "handler": "CreateProject",
         "user_id": c.GetString("user_id"),
     })
-    
+
     log.Info("Creating new project")
-    
+
     // Handler logic here
-    
+
     log.Info("Project created successfully")
 }
 ```
 
 ### Monitoring Guidelines
+
 - Use structured logging
 - Implement proper error tracking
 - Use proper metrics collection
@@ -293,6 +312,7 @@ func (h *ProjectHandler) CreateProject(c *gin.Context) {
 ## 🔒 Security Best Practices
 
 ### Input Validation
+
 ```go
 // Use proper input validation
 type CreateProjectRequest struct {
@@ -310,12 +330,13 @@ func CreateProject(c *gin.Context) {
         })
         return
     }
-    
+
     // Process request
 }
 ```
 
 ### Security Guidelines
+
 - Validate all inputs
 - Use proper SQL injection prevention
 - Implement proper rate limiting
@@ -326,6 +347,7 @@ func CreateProject(c *gin.Context) {
 ## 🚨 Common Pitfalls to Avoid
 
 ### Don't
+
 - Don't ignore errors
 - Don't use global variables
 - Don't forget to close resources
@@ -333,6 +355,7 @@ func CreateProject(c *gin.Context) {
 - Don't skip input validation
 
 ### Do
+
 - Do handle errors properly
 - Do use proper logging
 - Do implement proper testing
@@ -342,6 +365,7 @@ func CreateProject(c *gin.Context) {
 ## 📚 Documentation
 
 ### API Documentation
+
 ```go
 // @Summary Create a new project
 // @Description Create a new crowdfunding project
@@ -359,6 +383,7 @@ func CreateProject(c *gin.Context) {
 ```
 
 ### Documentation Standards
+
 - Use Swagger/OpenAPI annotations
 - Document all endpoints
 - Include request/response examples
@@ -390,6 +415,7 @@ go run cmd/migrate.go down  # Rollback migrations
 ## 🎯 Code Review Checklist
 
 ### Before Submitting PR
+
 - [ ] Go code follows best practices
 - [ ] All tests pass
 - [ ] No linting errors

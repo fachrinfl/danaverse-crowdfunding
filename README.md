@@ -297,22 +297,27 @@ git tag contracts-v0.3.2
 
 ## 📚 Documentation
 
-### **Architecture & Structure**
+### **📁 Documentation Hub**
 
-- **[Architecture Overview](docs/ARCHITECTURE_OVERVIEW.md)** - Complete system architecture
-- **[Mobile Structure](apps/mobile/docs/PROJECT_STRUCTURE.md)** - React Native enterprise project structure
+All technical documentation is organized in the [`docs/`](docs/) directory:
+
+- **[Documentation Index](docs/README.md)** - Complete documentation overview
+- **[Architecture Overview](docs/architecture/ARCHITECTURE_OVERVIEW.md)** - System architecture
+- **[Development Guides](docs/development/)** - Development workflow and tools
+- **[Deployment Guide](docs/deployment/)** - CI/CD and deployment
+
+### **📱 Application Structure**
+
+- **[Mobile Structure](apps/mobile/docs/PROJECT_STRUCTURE.md)** - React Native project structure
 - **[Web Structure](apps/web/docs/PROJECT_STRUCTURE.md)** - Next.js project structure
 - **[API Structure](apps/api/docs/PROJECT_STRUCTURE.md)** - Go API project structure
 - **[Contracts Structure](contracts/docs/PROJECT_STRUCTURE.md)** - Solidity contracts structure
-- **[Scripts Guide](SCRIPTS_GUIDE.md)** - Development scripts and automation
-- **[Mobile Development Guide](MOBILE_DEVELOPMENT_GUIDE.md)** - Mobile development workflow
 
-### **Technical Documentation**
+### **🔧 Development Tools**
 
-- **API Documentation**: OpenAPI/Swagger specs
-- **Component Library**: Storybook for UI components
-- **Smart Contracts**: NatSpec documentation
-- **Architecture**: ADRs (Architecture Decision Records)
+- **[Branch Strategy](docs/development/BRANCH_STRATEGY.md)** - Git Flow workflow
+- **[Code Quality Tools](docs/development/CODE_QUALITY_TOOLS.md)** - Linting and formatting
+- **[CI/CD Pipeline](docs/deployment/CI_CD_GUIDE.md)** - Deployment automation
 
 ## 🆘 Troubleshooting
 

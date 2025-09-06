@@ -47,7 +47,16 @@
     "linters:install:shell": "./scripts/install-linters.sh shell",
     "linters:install:terraform": "./scripts/install-linters.sh terraform",
     "linters:check": "./scripts/install-linters.sh check",
-    "linters:examples": "./scripts/install-linters.sh examples"
+    "linters:examples": "./scripts/install-linters.sh examples",
+    "release:versions": "./scripts/release.sh versions",
+    "release:web": "./scripts/release.sh release web",
+    "release:mobile": "./scripts/release.sh release mobile",
+    "release:api": "./scripts/release.sh release api",
+    "release:contracts": "./scripts/release.sh release contracts",
+    "rc:web": "./scripts/release.sh rc web",
+    "rc:mobile": "./scripts/release.sh rc mobile",
+    "rc:api": "./scripts/release.sh rc api",
+    "rc:contracts": "./scripts/release.sh rc contracts"
   },
   "devDependencies": {
     "@commitlint/cli": "^18.4.3",

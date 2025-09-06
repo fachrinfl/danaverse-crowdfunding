@@ -1,4 +1,4 @@
-name: CI
+name: CI/CD Pipeline
 
 on:
   push:
@@ -7,10 +7,12 @@ on:
     branches: [main, develop]
 
 env:
-  PNPM_VERSION: 9
+  NODE_VERSION: '20'
+  GO_VERSION: '1.22'
+  PNPM_VERSION: '9'
 
 jobs:
-  # Determine which packages have changed
+  # Detect changed projects
   changes:
     runs-on: ubuntu-latest
     outputs:
@@ -18,6 +20,7 @@ jobs:
       web: ${{ steps.changes.outputs.web }}
       mobile: ${{ steps.changes.outputs.mobile }}
       contracts: ${{ steps.changes.outputs.contracts }}
+      infra: ${{ steps.changes.outputs.infra }}
       packages: ${{ steps.changes.outputs.packages }}
     steps:
       - uses: actions/checkout@v4
@@ -30,40 +33,77 @@ jobs:
             api:
               - 'apps/api/**'
               - 'packages/**'
-              - 'package.json'
-              - 'pnpm-workspace.yaml'
-              - 'turbo.json'
+              - 'go.mod'
+              'go.sum'
             web:
               - 'apps/web/**'
               - 'packages/**'
-              - 'package.json'
-              - 'pnpm-workspace.yaml'
-              - 'turbo.json'
             mobile:
               - 'apps/mobile/**'
               - 'packages/**'
-              - 'package.json'
-              - 'pnpm-workspace.yaml'
-              - 'turbo.json'
             contracts:
               - 'contracts/**'
-              - 'package.json'
-              - 'pnpm-workspace.yaml'
-              - 'turbo.json'
+            infra:
+              - 'infra/**'
             packages:
               - 'packages/**'
-              - 'package.json'
-              - 'pnpm-workspace.yaml'
-              - 'turbo.json'
 
-  # Lint and test matrix
-  build-test:
-    runs-on: ubuntu-latest
+  # API (Go) - Only runs if API changes detected
+  api:
     needs: changes
-    if: needs.changes.outputs.api == 'true' || needs.changes.outputs.web == 'true' || needs.changes.outputs.mobile == 'true' || needs.changes.outputs.contracts == 'true' || needs.changes.outputs.packages == 'true'
-    strategy:
-      matrix:
-        project: [api, web, mobile, contracts]
+    if: needs.changes.outputs.api == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: ${{ env.GO_VERSION }}
+
+      - name: Cache Go modules
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cache/go-build
+            ~/go/pkg/mod
+          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-
+
+      - name: Install dependencies
+        run: |
+          cd apps/api
+          go mod download
+          go mod verify
+
+      - name: Run linters
+        run: |
+          cd apps/api
+          # Install golangci-lint if not present
+          if ! command -v golangci-lint &> /dev/null; then
+            curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.54.2
+          fi
+          golangci-lint run
+
+      - name: Run tests
+        run: |
+          cd apps/api
+          go test -v -race -coverprofile=coverage.out ./...
+
+      - name: Upload coverage
+        uses: codecov/codecov-action@v3
+        with:
+          file: apps/api/coverage.out
+          flags: api
+          name: api-coverage
+
+  # Web (Next.js) - Only runs if Web changes detected
+  web:
+    needs: changes
+    if: needs.changes.outputs.web == 'true'
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -71,7 +111,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 'lts/*'
+          node-version: ${{ env.NODE_VERSION }}
 
       - name: Setup PNPM
         uses: pnpm/action-setup@v4
@@ -94,90 +134,148 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      # API specific steps
-      - name: Setup Go
-        if: matrix.project == 'api'
-        uses: actions/setup-go@v4
+      - name: Lint
+        run: pnpm --filter web lint
+
+      - name: Type check
+        run: pnpm --filter web type-check
+
+      - name: Build
+        run: pnpm --filter web build
+
+      - name: Test
+        run: pnpm --filter web test
+
+  # Mobile (React Native) - Only runs if Mobile changes detected
+  mobile:
+    needs: changes
+    if: needs.changes.outputs.mobile == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
-          go-version: '1.22'
+          node-version: ${{ env.NODE_VERSION }}
 
-      - name: Install Go dependencies
-        if: matrix.project == 'api'
+      - name: Setup PNPM
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: Get PNPM store directory
+        shell: bash
         run: |
-          cd apps/api
-          go mod download
+          echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
 
-      - name: Lint Go code
-        if: matrix.project == 'api'
-        run: |
-          cd apps/api
-          go vet ./...
-          go fmt ./...
+      - name: Setup PNPM cache
+        uses: actions/cache@v3
+        with:
+          path: ${{ env.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
 
-      - name: Test Go code
-        if: matrix.project == 'api'
-        run: |
-          cd apps/api
-          go test -v ./...
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
 
-      # Web specific steps
-      - name: Lint web code
-        if: matrix.project == 'web'
-        run: |
-          cd apps/web
-          pnpm lint
+      - name: Lint
+        run: pnpm --filter mobile lint
 
-      - name: Type check web code
-        if: matrix.project == 'web'
-        run: |
-          cd apps/web
-          pnpm type-check
+      - name: Type check
+        run: pnpm --filter mobile type-check
 
-      - name: Test web code
-        if: matrix.project == 'web'
-        run: |
-          cd apps/web
-          pnpm test
+      - name: Test
+        run: pnpm --filter mobile test
 
-      # Mobile specific steps
-      - name: Lint mobile code
-        if: matrix.project == 'mobile'
-        run: |
-          cd apps/mobile
-          pnpm lint
+  # Contracts (Solidity) - Only runs if Contracts changes detected
+  contracts:
+    needs: changes
+    if: needs.changes.outputs.contracts == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-      - name: Type check mobile code
-        if: matrix.project == 'mobile'
-        run: |
-          cd apps/mobile
-          pnpm type-check
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
 
-      # Contracts specific steps
-      - name: Setup Foundry
-        if: matrix.project == 'contracts'
-        run: |
-          curl -L https://foundry.paradigm.xyz | bash
-          export PATH="$PATH:$HOME/.foundry/bin"
-          foundryup
+      - name: Setup PNPM
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
 
-      - name: Install contract dependencies
-        if: matrix.project == 'contracts'
+      - name: Install Foundry
+        uses: foundry-rs/foundry-toolchain@v1
+        with:
+          version: nightly
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Lint Solidity
         run: |
           cd contracts
-          forge install
+          npx solhint "src/**/*.sol"
 
-      - name: Lint contracts
-        if: matrix.project == 'contracts'
+      - name: Compile contracts
         run: |
           cd contracts
-          forge fmt --check
+          forge build
+
+      - name: Run tests
+        run: |
+          cd contracts
           forge test
 
-  # Build all packages
-  build:
+      - name: Generate gas report
+        run: |
+          cd contracts
+          forge test --gas-report
+
+  # Infrastructure (Terraform) - Only runs if Infra changes detected
+  infra:
+    needs: changes
+    if: needs.changes.outputs.infra == 'true'
     runs-on: ubuntu-latest
-    needs: [changes, build-test]
-    if: always() && (needs.build-test.result == 'success' || needs.build-test.result == 'skipped')
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.5.7
+
+      - name: Terraform Format Check
+        run: |
+          cd infra
+          terraform fmt -check -recursive
+
+      - name: Terraform Init
+        run: |
+          cd infra
+          terraform init -backend=false
+
+      - name: Terraform Validate
+        run: |
+          cd infra
+          terraform validate
+
+      - name: Terraform Plan
+        run: |
+          cd infra
+          terraform plan -no-color
+
+  # Packages - Only runs if Packages changes detected
+  packages:
+    needs: changes
+    if: needs.changes.outputs.packages == 'true'
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -185,40 +283,81 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 'lts/*'
+          node-version: ${{ env.NODE_VERSION }}
 
       - name: Setup PNPM
         uses: pnpm/action-setup@v4
         with:
           version: ${{ env.PNPM_VERSION }}
 
+      - name: Get PNPM store directory
+        shell: bash
+        run: |
+          echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
+
+      - name: Setup PNPM cache
+        uses: actions/cache@v3
+        with:
+          path: ${{ env.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
+
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
+
+      - name: Lint packages
+        run: pnpm --filter "./packages/*" lint
+
+      - name: Type check packages
+        run: pnpm --filter "./packages/*" type-check
 
       - name: Build packages
-        run: pnpm build
+        run: pnpm --filter "./packages/*" build
 
-  # Security audit
+  # Security scan
   security:
     runs-on: ubuntu-latest
-    needs: changes
-    if: needs.changes.outputs.api == 'true' || needs.changes.outputs.web == 'true' || needs.changes.outputs.mobile == 'true' || needs.changes.outputs.contracts == 'true' || needs.changes.outputs.packages == 'true'
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@master
         with:
-          node-version: 'lts/*'
+          scan-type: 'fs'
+          scan-ref: '.'
+          format: 'sarif'
+          output: 'trivy-results.sarif'
 
-      - name: Setup PNPM
-        uses: pnpm/action-setup@v4
+      - name: Upload Trivy scan results
+        uses: github/codeql-action/upload-sarif@v2
         with:
-          version: ${{ env.PNPM_VERSION }}
+          sarif_file: 'trivy-results.sarif'
 
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: Run security audit
-        run: pnpm audit --audit-level moderate
+  # Summary job
+  summary:
+    needs: [changes, api, web, mobile, contracts, infra, packages, security]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Job Summary
+        run: |
+          echo "## 🚀 CI/CD Pipeline Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 📊 Changes Detected:" >> $GITHUB_STEP_SUMMARY
+          echo "- **API**: ${{ needs.changes.outputs.api }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Web**: ${{ needs.changes.outputs.web }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Mobile**: ${{ needs.changes.outputs.mobile }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Contracts**: ${{ needs.changes.outputs.contracts }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Infrastructure**: ${{ needs.changes.outputs.infra }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Packages**: ${{ needs.changes.outputs.packages }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### ✅ Job Results:" >> $GITHUB_STEP_SUMMARY
+          echo "- **API**: ${{ needs.api.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Web**: ${{ needs.web.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Mobile**: ${{ needs.mobile.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Contracts**: ${{ needs.contracts.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Infrastructure**: ${{ needs.infra.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Packages**: ${{ needs.packages.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Security**: ${{ needs.security.result }}" >> $GITHUB_STEP_SUMMARY

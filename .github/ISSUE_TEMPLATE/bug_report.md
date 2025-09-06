@@ -1,18 +1,18 @@
 ---
 name: 🐛 Bug Report
 about: Create a report to help us improve
-title: "[BUG] "
-labels: ["bug", "needs-triage"]
-assignees: ""
+title: '[BUG] '
+labels: ['bug', 'needs-triage']
+assignees: ['fachrinfl']
 ---
 
 # 🐛 Bug Report
 
-## 📋 Description
+## 📋 **Bug Description**
 
 <!-- A clear and concise description of what the bug is -->
 
-## 🔄 Steps to Reproduce
+## 🔄 **Steps to Reproduce**
 
 <!-- Steps to reproduce the behavior -->
 
@@ -21,101 +21,73 @@ assignees: ""
 3. Scroll down to '....'
 4. See error
 
-## ✅ Expected Behavior
+## 🎯 **Expected Behavior**
 
 <!-- A clear and concise description of what you expected to happen -->
 
-## ❌ Actual Behavior
+## 📱 **Actual Behavior**
 
 <!-- A clear and concise description of what actually happened -->
 
-## 📱 Environment
+## 📸 **Screenshots**
 
-<!-- Mark the relevant options with an "x" -->
+<!-- If applicable, add screenshots to help explain your problem -->
 
-### Application
+## 🌍 **Environment**
 
-- [ ] 🌐 Web App
-- [ ] 📱 Mobile App (iOS)
-- [ ] 📱 Mobile App (Android)
-- [ ] 🔧 API
-- [ ] ⛓️ Smart Contracts
+<!-- Please complete the following information -->
 
-### Platform
+- **OS**: [e.g. iOS, Android, Windows, macOS, Linux]
+- **Browser**: [e.g. Chrome, Safari, Firefox] (if applicable)
+- **Version**: [e.g. 22]
+- **Device**: [e.g. iPhone 12, Samsung Galaxy S21] (if applicable)
+- **App Version**: [e.g. 1.0.0]
 
-- [ ] 🖥️ Desktop
-- [ ] 📱 Mobile
-- [ ] 🌐 Web Browser
+## 📱 **Platform**
 
-### Browser (if applicable)
+<!-- Check all that apply -->
 
-- [ ] Chrome
-- [ ] Firefox
-- [ ] Safari
-- [ ] Edge
-- [ ] Other: <!-- specify -->
+- [ ] Web Application
+- [ ] Mobile Application
+- [ ] API/Backend
+- [ ] Smart Contracts
+- [ ] Infrastructure
 
-### Device (if applicable)
+## 🔧 **Technical Details**
 
-- [ ] iPhone
-- [ ] Android
-- [ ] iPad
-- [ ] Other: <!-- specify -->
+<!-- If applicable, provide technical details -->
 
-## 🔧 Technical Details
+- **Error Messages**:
+- **Console Logs**:
+- **Network Requests**:
+- **Database Queries**:
 
-### Version Information
+## 🎯 **Priority**
 
-- **OS**: <!-- e.g., macOS 14.0, Windows 11, Ubuntu 22.04 -->
-- **Node.js**: <!-- e.g., v18.17.0 -->
-- **Browser**: <!-- e.g., Chrome 119.0.6045.105 -->
-- **App Version**: <!-- e.g., v1.2.3 -->
+<!-- Check the appropriate priority level -->
 
-### Error Messages
+- [ ] 🔴 Critical - System is down or data loss
+- [ ] 🟠 High - Major functionality broken
+- [ ] 🟡 Medium - Minor functionality affected
+- [ ] 🟢 Low - Cosmetic issue or enhancement
 
-```
-<!-- Paste any error messages here -->
-```
+## 🔄 **Workaround**
 
-### Console Logs
+<!-- If you have found a workaround, please describe it -->
 
-```
-<!-- Paste relevant console logs here -->
-```
-
-## 📸 Screenshots/Videos
-
-<!-- If applicable, add screenshots or videos to help explain your problem -->
-
-## 🔍 Additional Context
+## 📚 **Additional Context**
 
 <!-- Add any other context about the problem here -->
 
-## 🧪 Reproduction
+---
 
-<!-- If you have a minimal reproduction case, please provide it -->
+## ✅ **Checklist**
 
-### Code Sample
+<!-- Check all that apply -->
 
-```typescript
-// If applicable, provide a minimal code sample that reproduces the issue
-```
-
-### Test Case
-
-```bash
-# If applicable, provide commands to reproduce the issue
-```
-
-## 📋 Checklist
-
-- [ ] I have searched existing issues to ensure this is not a duplicate
-- [ ] I have provided all the information requested above
-- [ ] I have tested this on the latest version
-- [ ] I have included relevant error messages and logs
-- [ ] I have provided steps to reproduce the issue
-
-## 🏷️ Labels
-
-<!-- The following labels will be automatically applied -->
-<!-- You can add additional labels if needed -->
+- [ ] I have searched for existing issues to avoid duplicates
+- [ ] I have provided a clear description of the bug
+- [ ] I have included steps to reproduce the issue
+- [ ] I have provided the expected vs actual behavior
+- [ ] I have included relevant environment information
+- [ ] I have included screenshots or error messages if applicable

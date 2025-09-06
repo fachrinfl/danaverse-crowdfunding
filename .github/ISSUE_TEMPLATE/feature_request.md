@@ -1,130 +1,72 @@
 ---
-name: ✨ Feature Request
+name: 🚀 Feature Request
 about: Suggest an idea for this project
-title: "[FEATURE] "
-labels: ["enhancement", "needs-triage"]
-assignees: ""
+title: '[FEATURE] '
+labels: ['enhancement', 'feature']
+assignees: ['fachrinfl']
 ---
 
-# ✨ Feature Request
+# 🚀 Feature Request
 
-## 📋 Description
+## 📋 **Feature Description**
 
-<!-- A clear and concise description of the feature you'd like to see implemented -->
+<!-- A clear and concise description of what the feature is -->
 
-## 🎯 Problem Statement
+## 🎯 **Problem Statement**
 
-<!-- Is your feature request related to a problem? Please describe. -->
-<!-- A clear and concise description of what the problem is. Ex. I'm always frustrated when [...] -->
+<!-- Is your feature request related to a problem? Please describe. A clear and concise description of what the problem is -->
 
-## 💡 Proposed Solution
+## 💡 **Proposed Solution**
 
-<!-- Describe the solution you'd like -->
-<!-- A clear and concise description of what you want to happen -->
+<!-- Describe the solution you'd like. A clear and concise description of what you want to happen -->
 
-## 🔄 Alternative Solutions
+## 🔄 **Alternative Solutions**
 
 <!-- Describe any alternative solutions or features you've considered -->
-<!-- A clear and concise description of any alternative solutions or features you've considered -->
 
-## 🎯 Use Cases
+## 📱 **Platform**
 
-<!-- Describe the use cases for this feature -->
-<!-- Who would use this feature and how? -->
+<!-- Check all that apply -->
 
-1. **Use Case 1**: <!-- Description -->
-2. **Use Case 2**: <!-- Description -->
-3. **Use Case 3**: <!-- Description -->
+- [ ] Web Application
+- [ ] Mobile Application
+- [ ] API/Backend
+- [ ] Smart Contracts
+- [ ] Infrastructure
+- [ ] Documentation
 
-## 🎨 Design Considerations
+## 🎨 **UI/UX Considerations**
 
-<!-- If this is a UI/UX feature, describe design considerations -->
+<!-- If applicable, describe any UI/UX considerations -->
 
-### Visual Design
+## 🔧 **Technical Considerations**
 
-- [ ] Requires new UI components
-- [ ] Modifies existing UI components
-- [ ] No UI changes required
+<!-- If applicable, describe any technical considerations -->
 
-### User Experience
-
-- [ ] Improves user workflow
-- [ ] Adds new functionality
-- [ ] Enhances existing functionality
-
-## 🔧 Technical Considerations
-
-<!-- Describe any technical considerations -->
-
-### Scope
-
-- [ ] 🌐 Web App (`apps/web`)
-- [ ] 📱 Mobile App (`apps/mobile`)
-- [ ] 🔧 API (`apps/api`)
-- [ ] ⛓️ Smart Contracts (`contracts`)
-- [ ] 🏗️ Infrastructure (`infra`)
-- [ ] 📦 Shared Packages (`packages`)
-- [ ] 🛠️ Scripts (`scripts`)
-- [ ] 📚 Documentation
-
-### Implementation Complexity
-
-- [ ] 🟢 Low - Simple implementation
-- [ ] 🟡 Medium - Moderate complexity
-- [ ] 🔴 High - Complex implementation requiring significant changes
-
-### Dependencies
-
-<!-- List any dependencies or prerequisites -->
-
-- [ ] No external dependencies
-- [ ] Requires new dependencies: <!-- list -->
-- [ ] Requires changes to existing dependencies
-
-## 📊 Impact Assessment
-
-### User Impact
-
-- [ ] 🟢 Low - Minimal user impact
-- [ ] 🟡 Medium - Moderate user impact
-- [ ] 🔴 High - Significant user impact
-
-### Development Impact
-
-- [ ] 🟢 Low - Minimal development effort
-- [ ] 🟡 Medium - Moderate development effort
-- [ ] 🔴 High - Significant development effort
-
-## 🧪 Acceptance Criteria
+## 📊 **Acceptance Criteria**
 
 <!-- Define what "done" looks like for this feature -->
 
-- [ ] **Criterion 1**: <!-- Description -->
-- [ ] **Criterion 2**: <!-- Description -->
-- [ ] **Criterion 3**: <!-- Description -->
+- [ ] Criterion 1
+- [ ] Criterion 2
+- [ ] Criterion 3
 
-## 📸 Mockups/Examples
+## 🧪 **Testing Requirements**
 
-<!-- If applicable, add mockups, wireframes, or examples -->
+<!-- Describe how this feature should be tested -->
 
-## 🔗 Related Issues
-
-<!-- Link to any related issues -->
-<!-- Use "Related to #123" or "Blocked by #123" -->
-
-## 📋 Additional Context
+## 📚 **Additional Context**
 
 <!-- Add any other context or screenshots about the feature request here -->
 
-## 🏷️ Labels
+---
 
-<!-- The following labels will be automatically applied -->
-<!-- You can add additional labels if needed -->
+## ✅ **Checklist**
 
-## 📋 Checklist
+<!-- Check all that apply -->
 
-- [ ] I have searched existing issues to ensure this is not a duplicate
+- [ ] I have searched for existing issues to avoid duplicates
 - [ ] I have provided a clear description of the feature
-- [ ] I have considered the technical implications
-- [ ] I have defined acceptance criteria
-- [ ] I have considered the user impact
+- [ ] I have considered the impact on existing functionality
+- [ ] I have thought about the user experience
+- [ ] I have considered the technical implementation

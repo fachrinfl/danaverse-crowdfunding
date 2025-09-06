@@ -1,92 +1,93 @@
-# Pull Request
+# 🚀 Pull Request
 
-## 📋 Description
+## 📋 **Description**
 
 <!-- Provide a brief description of the changes in this PR -->
 
-## 🔗 Related Issue
+## 🔗 **Related Issues**
 
-<!-- Link to the related issue using "Fixes #123" or "Closes #123" -->
+<!-- Link to related issues using "Fixes #123" or "Closes #123" -->
 
-## 🧪 Type of Change
-
-<!-- Mark the relevant option with an "x" -->
-
-- [ ] 🐛 Bug fix (non-breaking change which fixes an issue)
-- [ ] ✨ New feature (non-breaking change which adds functionality)
-- [ ] 💥 Breaking change (fix or feature that would cause existing functionality to not work as expected)
-- [ ] 📚 Documentation update
-- [ ] 🎨 Style/formatting changes
-- [ ] ♻️ Code refactoring
-- [ ] ⚡ Performance improvements
-- [ ] 🧪 Test updates
-- [ ] 🔧 Build/CI changes
-
-## 🎯 Scope
-
-<!-- Mark the relevant options with an "x" -->
-
-- [ ] 🌐 Web App (`apps/web`)
-- [ ] 📱 Mobile App (`apps/mobile`)
-- [ ] 🔧 API (`apps/api`)
-- [ ] ⛓️ Smart Contracts (`contracts`)
-- [ ] 🏗️ Infrastructure (`infra`)
-- [ ] 📦 Shared Packages (`packages`)
-- [ ] 🛠️ Scripts (`scripts`)
-- [ ] 📚 Documentation
-- [ ] 🔄 CI/CD
-
-## 🧪 Testing
+## 🧪 **Testing**
 
 <!-- Describe the tests you ran to verify your changes -->
 
 - [ ] Unit tests pass
 - [ ] Integration tests pass
-- [ ] E2E tests pass
 - [ ] Manual testing completed
+- [ ] Cross-browser testing (if applicable)
+- [ ] Mobile testing (if applicable)
 
-### Test Results
+## 📸 **Screenshots** (if applicable)
 
-```
-<!-- Paste test results here if applicable -->
-```
+<!-- Add screenshots to help explain your changes -->
 
-## 📱 Mobile Testing (if applicable)
+## 🔍 **Code Quality**
 
-<!-- For mobile changes, describe testing on different platforms -->
-
-- [ ] ✅ iOS Simulator
-- [ ] ✅ Android Emulator
-- [ ] ✅ Physical iOS Device
-- [ ] ✅ Physical Android Device
-- [ ] ✅ Web Browser
-
-## 🔍 Code Quality
-
-<!-- Mark the relevant options with an "x" -->
+<!-- Check all that apply -->
 
 - [ ] Code follows project style guidelines
 - [ ] Self-review completed
 - [ ] Code is properly commented
-- [ ] No console.log statements left in production code
-- [ ] TypeScript types are properly defined
-- [ ] ESLint passes without warnings
-- [ ] Prettier formatting applied
+- [ ] No console.log statements left in code
+- [ ] No hardcoded values
+- [ ] Error handling implemented
 
-## 📸 Screenshots/Videos (if applicable)
+## 🚀 **Deployment**
 
-<!-- Add screenshots or videos to help explain your changes -->
+<!-- Check all that apply -->
 
-## 🚀 Deployment Notes
+- [ ] Environment variables updated (if needed)
+- [ ] Database migrations included (if needed)
+- [ ] Breaking changes documented
+- [ ] Backward compatibility maintained
 
-<!-- Any special deployment considerations -->
+## 📚 **Documentation**
 
-## 📋 Checklist
+<!-- Check all that apply -->
 
-<!-- Mark the relevant options with an "x" -->
+- [ ] README updated (if needed)
+- [ ] API documentation updated (if needed)
+- [ ] Code comments added
+- [ ] Changelog updated
 
-- [ ] My code follows the project's style guidelines
-- [ ] I have performed a self-review of my own code
+## 🔒 **Security**
+
+<!-- Check all that apply -->
+
+- [ ] No sensitive data exposed
+- [ ] Input validation implemented
+- [ ] Authentication/authorization handled
+- [ ] SQL injection prevention
+- [ ] XSS prevention
+
+## 🎯 **Type of Change**
+
+<!-- Check the type of change this PR introduces -->
+
+- [ ] 🐛 Bug fix (non-breaking change which fixes an issue)
+- [ ] ✨ New feature (non-breaking change which adds functionality)
+- [ ] 💥 Breaking change (fix or feature that would cause existing functionality to not work as expected)
+- [ ] 📚 Documentation update
+- [ ] 🔧 Configuration change
+- [ ] 🎨 Style/formatting change
+- [ ] ♻️ Code refactoring
+- [ ] ⚡ Performance improvement
+- [ ] 🧪 Test addition or update
+
+## 📝 **Additional Notes**
+
+<!-- Add any additional notes or context about the PR -->
+
+---
+
+## ✅ **Checklist**
+
+<!-- Check all that apply -->
+
+- [ ] I have read and followed the contributing guidelines
+- [ ] My code follows the project's coding standards
+- [ ] I have performed a self-review of my code
 - [ ] I have commented my code, particularly in hard-to-understand areas
 - [ ] I have made corresponding changes to the documentation
 - [ ] My changes generate no new warnings
@@ -94,41 +95,7 @@
 - [ ] New and existing unit tests pass locally with my changes
 - [ ] Any dependent changes have been merged and published
 
-## 🔒 Security Considerations
-
-<!-- Describe any security implications of this change -->
-
-- [ ] No sensitive data exposed
-- [ ] Input validation implemented
-- [ ] Authentication/authorization considered
-- [ ] Rate limiting considered (if applicable)
-
-## 📊 Performance Impact
-
-<!-- Describe any performance implications -->
-
-- [ ] No performance regression
-- [ ] Performance improvements measured
-- [ ] Bundle size impact considered
-
-## 🌍 Accessibility
-
-<!-- For UI changes, describe accessibility considerations -->
-
-- [ ] WCAG guidelines followed
-- [ ] Screen reader compatibility tested
-- [ ] Keyboard navigation works
-- [ ] Color contrast meets standards
-
-## 📝 Additional Notes
-
-<!-- Any additional information that reviewers should know -->
-
 ---
 
-**Reviewer Guidelines:**
-
-- Please review the code for correctness, performance, and maintainability
-- Check that tests are comprehensive and meaningful
-- Verify that documentation is updated if needed
-- Ensure the change aligns with project architecture and patterns
+**Reviewer**: @fachrinfl
+**Assignee**: @fachrinfl

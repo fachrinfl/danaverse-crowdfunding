@@ -252,7 +252,8 @@ jobs:
 
   # Final deployment summary
   deployment-summary:
-    needs: [detect-project, deploy-web, deploy-api, deploy-mobile, deploy-contracts]
+    needs:
+      [detect-project, deploy-web, deploy-api, deploy-mobile, deploy-contracts]
     if: always()
     runs-on: ubuntu-latest
     steps:

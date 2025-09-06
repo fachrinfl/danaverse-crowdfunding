@@ -6,6 +6,11 @@ on:
   pull_request:
     branches: [main, develop]
 
+permissions:
+  contents: read
+  security-events: write
+  actions: read
+
 env:
   NODE_VERSION: '20'
   GO_VERSION: '1.22'
@@ -15,6 +20,9 @@ jobs:
   # Detect changed projects
   changes:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      actions: read
     outputs:
       api: ${{ steps.changes.outputs.api }}
       web: ${{ steps.changes.outputs.web }}
@@ -34,7 +42,7 @@ jobs:
               - 'apps/api/**'
               - 'packages/**'
               - 'go.mod'
-              'go.sum'
+              - 'go.sum'
             web:
               - 'apps/web/**'
               - 'packages/**'
@@ -53,6 +61,10 @@ jobs:
     needs: changes
     if: needs.changes.outputs.api == 'true'
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      actions: read
+      id-token: write
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -104,6 +116,10 @@ jobs:
     needs: changes
     if: needs.changes.outputs.web == 'true'
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      actions: read
+      id-token: write
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -151,6 +167,9 @@ jobs:
     needs: changes
     if: needs.changes.outputs.mobile == 'true'
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      actions: read
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -195,6 +214,9 @@ jobs:
     needs: changes
     if: needs.changes.outputs.contracts == 'true'
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      actions: read
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -242,6 +264,9 @@ jobs:
     needs: changes
     if: needs.changes.outputs.infra == 'true'
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      actions: read
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -276,6 +301,9 @@ jobs:
     needs: changes
     if: needs.changes.outputs.packages == 'true'
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      actions: read
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -318,12 +346,17 @@ jobs:
   # Security scan
   security:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
+      actions: read
+      id-token: write
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
       - name: Run Trivy vulnerability scanner
-        uses: aquasecurity/trivy-action@master
+        uses: aquasecurity/trivy-action@0.24.0
         with:
           scan-type: 'fs'
           scan-ref: '.'
@@ -331,7 +364,7 @@ jobs:
           output: 'trivy-results.sarif'
 
       - name: Upload Trivy scan results
-        uses: github/codeql-action/upload-sarif@v2
+        uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: 'trivy-results.sarif'
 
@@ -340,6 +373,10 @@ jobs:
     needs: [changes, api, web, mobile, contracts, infra, packages, security]
     if: always()
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      actions: read
+      id-token: write
     steps:
       - name: Job Summary
         run: |

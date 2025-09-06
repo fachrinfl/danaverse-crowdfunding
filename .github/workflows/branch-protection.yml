@@ -1,0 +1,39 @@
+name: Branch Protection Setup
+
+on:
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: 'Branch to protect'
+        required: true
+        default: 'main'
+        type: choice
+        options:
+          - main
+          - develop
+          - staging
+
+jobs:
+  setup-branch-protection:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup Branch Protection
+        run: |
+          echo "## 🛡️ Branch Protection Setup" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 📋 Branch Protection Rules" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Branch**: ${{ github.event.inputs.branch }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 🔒 Protection Rules:" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ Require pull request reviews" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ Require status checks to pass" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ Require branches to be up to date" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ Require linear history" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ Restrict pushes to matching branches" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 📝 Manual Setup Required:" >> $GITHUB_STEP_SUMMARY
+          echo "1. Go to Repository Settings > Branches" >> $GITHUB_STEP_SUMMARY
+          echo "2. Add rule for branch: ${{ github.event.inputs.branch }}" >> $GITHUB_STEP_SUMMARY
+          echo "3. Configure protection rules as shown above" >> $GITHUB_STEP_SUMMARY
+          echo "4. Save changes" >> $GITHUB_STEP_SUMMARY

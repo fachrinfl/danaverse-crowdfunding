@@ -1,0 +1,59 @@
+name: Environment Setup
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to setup'
+        required: true
+        default: 'staging'
+        type: choice
+        options:
+          - staging
+          - production
+
+jobs:
+  setup-environment:
+    runs-on: ubuntu-latest
+    environment: ${{ github.event.inputs.environment }}
+    steps:
+      - name: Setup Environment
+        run: |
+          echo "## 🌍 Environment Setup: ${{ github.event.inputs.environment }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 📋 Environment Configuration" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Environment**: ${{ github.event.inputs.environment }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Status**: ✅ Ready for deployment" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 🔧 Required Secrets:" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "#### General Secrets:" >> $GITHUB_STEP_SUMMARY
+          echo "- \`API_URL\` - API endpoint URL" >> $GITHUB_STEP_SUMMARY
+          echo "- \`DATABASE_URL\` - Database connection string" >> $GITHUB_STEP_SUMMARY
+          echo "- \`JWT_SECRET\` - JWT signing secret" >> $GITHUB_STEP_SUMMARY
+          echo "- \`REDIS_URL\` - Redis connection string" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "#### External Services:" >> $GITHUB_STEP_SUMMARY
+          echo "- \`ALCHEMY_API_KEY\` - Alchemy API key" >> $GITHUB_STEP_SUMMARY
+          echo "- \`INFURA_PROJECT_ID\` - Infura project ID" >> $GITHUB_STEP_SUMMARY
+          echo "- \`ETHERSCAN_API_KEY\` - Etherscan API key" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "#### Deployment:" >> $GITHUB_STEP_SUMMARY
+          echo "- \`VERCEL_TOKEN\` - Vercel deployment token" >> $GITHUB_STEP_SUMMARY
+          echo "- \`VERCEL_ORG_ID\` - Vercel organization ID" >> $GITHUB_STEP_SUMMARY
+          echo "- \`VERCEL_PROJECT_ID\` - Vercel project ID" >> $GITHUB_STEP_SUMMARY
+          echo "- \`EXPO_TOKEN\` - Expo deployment token" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "#### Blockchain:" >> $GITHUB_STEP_SUMMARY
+          echo "- \`TESTNET_RPC_URL\` - Testnet RPC URL" >> $GITHUB_STEP_SUMMARY
+          echo "- \`MAINNET_RPC_URL\` - Mainnet RPC URL" >> $GITHUB_STEP_SUMMARY
+          echo "- \`DEPLOYER_PRIVATE_KEY\` - Deployer private key" >> $GITHUB_STEP_SUMMARY
+          echo "- \`CHAIN_ID\` - Blockchain chain ID" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 📝 Manual Setup Required:" >> $GITHUB_STEP_SUMMARY
+          echo "1. Go to Repository Settings > Environments" >> $GITHUB_STEP_SUMMARY
+          echo "2. Create environment: ${{ github.event.inputs.environment }}" >> $GITHUB_STEP_SUMMARY
+          echo "3. Add all required secrets listed above" >> $GITHUB_STEP_SUMMARY
+          echo "4. Configure protection rules if needed" >> $GITHUB_STEP_SUMMARY
+          echo "5. Save changes" >> $GITHUB_STEP_SUMMARY

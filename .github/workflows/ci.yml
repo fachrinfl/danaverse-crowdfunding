@@ -14,7 +14,6 @@ permissions:
 env:
   NODE_VERSION: '20'
   GO_VERSION: '1.22'
-  PNPM_VERSION: '9'
 
 jobs:
   # Detect changed projects
@@ -80,7 +79,7 @@ jobs:
           path: |
             ~/.cache/go-build
             ~/go/pkg/mod
-          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+          key: ${{ runner.os }}-go-${{ hashFiles('apps/api/go.mod') }}
           restore-keys: |
             ${{ runner.os }}-go-
 
@@ -131,8 +130,6 @@ jobs:
 
       - name: Setup PNPM
         uses: pnpm/action-setup@v4
-        with:
-          version: ${{ env.PNPM_VERSION }}
 
       - name: Get PNPM store directory
         shell: bash
@@ -181,8 +178,6 @@ jobs:
 
       - name: Setup PNPM
         uses: pnpm/action-setup@v4
-        with:
-          version: ${{ env.PNPM_VERSION }}
 
       - name: Get PNPM store directory
         shell: bash
@@ -228,8 +223,6 @@ jobs:
 
       - name: Setup PNPM
         uses: pnpm/action-setup@v4
-        with:
-          version: ${{ env.PNPM_VERSION }}
 
       - name: Install Foundry
         uses: foundry-rs/foundry-toolchain@v1
@@ -315,8 +308,6 @@ jobs:
 
       - name: Setup PNPM
         uses: pnpm/action-setup@v4
-        with:
-          version: ${{ env.PNPM_VERSION }}
 
       - name: Get PNPM store directory
         shell: bash

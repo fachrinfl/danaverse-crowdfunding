@@ -100,15 +100,27 @@ create_branch_protection() {
     
     print_status "Creating branch protection for $branch..."
     
+    # Create branch protection with correct JSON format
     gh api repos/$REPO_OWNER/$REPO_NAME/branches/$branch/protection \
         --method PUT \
-        --field required_status_checks='{"strict":true,"contexts":["CI/CD Pipeline","AI Code Review"]}' \
-        --field enforce_admins=true \
-        --field required_pull_request_reviews='{"required_approving_review_count":'$required_reviews',"dismiss_stale_reviews":true,"require_code_owner_reviews":true}' \
-        --field restrictions=null \
-        --field allow_force_pushes=false \
-        --field allow_deletions=false \
-        --field required_conversation_resolution=true
+        --input - << EOF
+{
+  "required_status_checks": {
+    "strict": true,
+    "contexts": ["CI/CD Pipeline", "AI Code Review"]
+  },
+  "enforce_admins": true,
+  "required_pull_request_reviews": {
+    "required_approving_review_count": $required_reviews,
+    "dismiss_stale_reviews": true,
+    "require_code_owner_reviews": true
+  },
+  "restrictions": null,
+  "allow_force_pushes": false,
+  "allow_deletions": false,
+  "required_conversation_resolution": true
+}
+EOF
 }
 
 # Create protection rules for main branches

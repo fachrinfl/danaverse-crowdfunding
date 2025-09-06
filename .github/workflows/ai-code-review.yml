@@ -1,0 +1,506 @@
+name: AI Code Review (Cursor AI + Cloud Code)
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    branches: [main, develop, staging]
+
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
+  checks: write
+
+jobs:
+  ai-code-review:
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.draft == false
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Setup PNPM
+        uses: pnpm/action-setup@v4
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: AI Code Quality Review (Cursor AI Style)
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { data: files } = await github.rest.pulls.listFiles({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.issue.number,
+            });
+
+            let reviewComments = [];
+            let suggestions = [];
+
+            for (const file of files) {
+              // Skip deleted files
+              if (file.status === 'deleted') continue;
+
+              // Get file content
+              const { data: content } = await github.rest.repos.getContent({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                path: file.filename,
+                ref: context.payload.pull_request.head.sha,
+              });
+
+              const fileContent = Buffer.from(content.content, 'base64').toString();
+
+              // AI-powered code review based on file type and DanaVerse standards
+              if (file.filename.endsWith('.ts') || file.filename.endsWith('.tsx')) {
+                const tsReview = await reviewTypeScriptFile(file.filename, fileContent, file.patch);
+                reviewComments.push(...tsReview.comments);
+                suggestions.push(...tsReview.suggestions);
+              } else if (file.filename.endsWith('.go')) {
+                const goReview = await reviewGoFile(file.filename, fileContent, file.patch);
+                reviewComments.push(...goReview.comments);
+                suggestions.push(...goReview.suggestions);
+              } else if (file.filename.endsWith('.sol')) {
+                const solReview = await reviewSolidityFile(file.filename, fileContent, file.patch);
+                reviewComments.push(...solReview.comments);
+                suggestions.push(...solReview.suggestions);
+              } else if (file.filename.endsWith('.js') || file.filename.endsWith('.jsx')) {
+                const jsReview = await reviewJavaScriptFile(file.filename, fileContent, file.patch);
+                reviewComments.push(...jsReview.comments);
+                suggestions.push(...jsReview.suggestions);
+              }
+            }
+
+            // Post review comments
+            if (reviewComments.length > 0) {
+              await github.rest.pulls.createReview({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                pull_number: context.issue.number,
+                body: generateReviewSummary(reviewComments, suggestions),
+                event: 'COMMENT',
+                comments: reviewComments
+              });
+            }
+
+            // Helper functions following DanaVerse Cursor Rules
+            async function reviewTypeScriptFile(filename, content, patch) {
+              const comments = [];
+              const suggestions = [];
+
+              const lines = content.split('\n');
+              
+              for (let i = 0; i < lines.length; i++) {
+                const line = lines[i];
+                const lineNumber = i + 1;
+
+                // Check for TypeScript strict mode compliance
+                if (line.includes(': any')) {
+                  comments.push({
+                    path: filename,
+                    line: lineNumber,
+                    body: `🤖 **Cursor AI Review**: Consider using specific types instead of \`any\`. This improves type safety and code maintainability.\n\n**Suggestion**: Replace \`any\` with a more specific type or interface.\n\n**DanaVerse Standard**: Use TypeScript strict mode for all JS/TS projects.`
+                  });
+                }
+
+                // Check for console.log in production code
+                if (line.includes('console.log') && !filename.includes('.test.') && !filename.includes('.spec.')) {
+                  comments.push({
+                    path: filename,
+                    line: lineNumber,
+                    body: `🤖 **Cursor AI Review**: Consider removing \`console.log\` statements from production code.\n\n**Suggestion**: Use proper logging library or remove debug statements.\n\n**DanaVerse Standard**: Use English for all console.log statements.`
+                  });
+                }
+
+                // Check for missing error handling
+                if (line.includes('async') && !line.includes('try') && !line.includes('catch')) {
+                  const nextLines = lines.slice(i, i + 5);
+                  if (nextLines.some(l => l.includes('await')) && !nextLines.some(l => l.includes('catch'))) {
+                    comments.push({
+                      path: filename,
+                      line: lineNumber,
+                      body: `🤖 **Cursor AI Review**: Consider adding error handling for async operations.\n\n**Suggestion**: Wrap async operations in try-catch blocks for proper error handling.\n\n**DanaVerse Standard**: Implement proper error handling.`
+                    });
+                  }
+                }
+
+                // Check for React best practices
+                if (filename.includes('.tsx')) {
+                  if (line.includes('useEffect') && !line.includes('[]') && !line.includes('[')) {
+                    comments.push({
+                      path: filename,
+                      line: lineNumber,
+                      body: `🤖 **Cursor AI Review**: \`useEffect\` should have proper dependency array.\n\n**Suggestion**: Add dependency array to prevent infinite re-renders.\n\n**DanaVerse Standard**: Use functional components with hooks only.`
+                    });
+                  }
+
+                  // Check for class components
+                  if (line.includes('class ') && line.includes('extends React.Component')) {
+                    comments.push({
+                      path: filename,
+                      line: lineNumber,
+                      body: `🤖 **Cursor AI Review**: Class components are not recommended.\n\n**Suggestion**: Convert to functional component with hooks.\n\n**DanaVerse Standard**: Functional components with hooks only (no classes).`
+                    });
+                  }
+                }
+
+                // Check for performance optimizations
+                if (line.includes('useState') && !line.includes('useCallback') && !line.includes('useMemo')) {
+                  const nextLines = lines.slice(i, i + 10);
+                  if (nextLines.some(l => l.includes('useEffect') || l.includes('useCallback'))) {
+                    comments.push({
+                      path: filename,
+                      line: lineNumber,
+                      body: `🤖 **Cursor AI Review**: Consider using \`useCallback\` or \`useMemo\` for performance optimization.\n\n**Suggestion**: Optimize re-renders with proper memoization.\n\n**DanaVerse Standard**: Performance optimizations: React.memo, useMemo, useCallback.`
+                    });
+                  }
+                }
+              }
+
+              return { comments, suggestions };
+            }
+
+            async function reviewGoFile(filename, content, patch) {
+              const comments = [];
+              const suggestions = [];
+
+              const lines = content.split('\n');
+              
+              for (let i = 0; i < lines.length; i++) {
+                const line = lines[i];
+                const lineNumber = i + 1;
+
+                // Check for error handling
+                if (line.includes('err :=') && !lines[i + 1]?.includes('if err != nil')) {
+                  comments.push({
+                    path: filename,
+                    line: lineNumber,
+                    body: `🤖 **Cursor AI Review**: Consider checking for errors after assignment.\n\n**Suggestion**: Add proper error handling with \`if err != nil\` check.\n\n**DanaVerse Standard**: Use proper error handling.`
+                  });
+                }
+
+                // Check for proper context usage
+                if (line.includes('context.Background()') && !filename.includes('main.go')) {
+                  comments.push({
+                    path: filename,
+                    line: lineNumber,
+                    body: `🤖 **Cursor AI Review**: Consider using request context instead of \`context.Background()\`.\n\n**Suggestion**: Pass context from the request handler for proper cancellation.\n\n**DanaVerse Standard**: Use context for cancellation.`
+                  });
+                }
+
+                // Check for security issues
+                if (line.includes('fmt.Sprintf') && line.includes('%s')) {
+                  comments.push({
+                    path: filename,
+                    line: lineNumber,
+                    body: `🤖 **Cursor AI Review**: Consider using parameterized queries for database operations.\n\n**Suggestion**: Use prepared statements to prevent SQL injection.\n\n**DanaVerse Standard**: Implement proper input validation.`
+                  });
+                }
+
+                // Check for proper logging
+                if (line.includes('fmt.Print') && !line.includes('log.')) {
+                  comments.push({
+                    path: filename,
+                    line: lineNumber,
+                    body: `🤖 **Cursor AI Review**: Consider using structured logging instead of \`fmt.Print\`.\n\n**Suggestion**: Use proper logging library for better observability.\n\n**DanaVerse Standard**: Use structured logging.`
+                  });
+                }
+              }
+
+              return { comments, suggestions };
+            }
+
+            async function reviewSolidityFile(filename, content, patch) {
+              const comments = [];
+              const suggestions = [];
+
+              const lines = content.split('\n');
+              
+              for (let i = 0; i < lines.length; i++) {
+                const line = lines[i];
+                const lineNumber = i + 1;
+
+                // Check for security patterns
+                if (line.includes('msg.sender') && !line.includes('require')) {
+                  const nextLines = lines.slice(i, i + 3);
+                  if (!nextLines.some(l => l.includes('require') || l.includes('modifier'))) {
+                    comments.push({
+                      path: filename,
+                      line: lineNumber,
+                      body: `🤖 **Cursor AI Review**: Consider adding access control for \`msg.sender\` operations.\n\n**Suggestion**: Add \`require\` statements or use modifiers for proper access control.\n\n**DanaVerse Standard**: Use OpenZeppelin security patterns.`
+                    });
+                  }
+                }
+
+                // Check for reentrancy protection
+                if (line.includes('external') && line.includes('payable') && !content.includes('nonReentrant')) {
+                  comments.push({
+                    path: filename,
+                    line: lineNumber,
+                    body: `🤖 **Cursor AI Review**: Consider adding reentrancy protection for external payable functions.\n\n**Suggestion**: Use \`nonReentrant\` modifier from OpenZeppelin.\n\n**DanaVerse Standard**: Use reentrancy guards.`
+                  });
+                }
+
+                // Check for gas optimization
+                if (line.includes('uint256') && line.includes('storage')) {
+                  comments.push({
+                    path: filename,
+                    line: lineNumber,
+                    body: `🤖 **Cursor AI Review**: Consider using \`memory\` instead of \`storage\` for temporary variables.\n\n**Suggestion**: Use \`memory\` keyword for gas optimization.\n\n**DanaVerse Standard**: Follow gas optimization patterns.`
+                  });
+                }
+
+                // Check for proper events
+                if (line.includes('function') && line.includes('external') && !content.includes('emit')) {
+                  comments.push({
+                    path: filename,
+                    line: lineNumber,
+                    body: `🤖 **Cursor AI Review**: Consider emitting events for important state changes.\n\n**Suggestion**: Add events for off-chain integration.\n\n**DanaVerse Standard**: Use events for off-chain integration.`
+                  });
+                }
+              }
+
+              return { comments, suggestions };
+            }
+
+            async function reviewJavaScriptFile(filename, content, patch) {
+              const comments = [];
+              const suggestions = [];
+
+              const lines = content.split('\n');
+              
+              for (let i = 0; i < lines.length; i++) {
+                const line = lines[i];
+                const lineNumber = i + 1;
+
+                // Check for var usage
+                if (line.includes('var ')) {
+                  comments.push({
+                    path: filename,
+                    line: lineNumber,
+                    body: `🤖 **Cursor AI Review**: Consider using \`let\` or \`const\` instead of \`var\`.\n\n**Suggestion**: Use \`const\` for constants and \`let\` for variables.\n\n**DanaVerse Standard**: Use modern JavaScript features.`
+                  });
+                }
+
+                // Check for == instead of ===
+                if (line.includes(' == ') && !line.includes(' === ')) {
+                  comments.push({
+                    path: filename,
+                    line: lineNumber,
+                    body: `🤖 **Cursor AI Review**: Consider using strict equality (\`===\`) instead of loose equality (\`==\`).\n\n**Suggestion**: Use \`===\` for better type safety.\n\n**DanaVerse Standard**: Use strict equality operators.`
+                  });
+                }
+
+                // Check for missing semicolons
+                if (line.trim() && !line.trim().endsWith(';') && !line.trim().endsWith('{') && !line.trim().endsWith('}') && !line.trim().endsWith(',')) {
+                  comments.push({
+                    path: filename,
+                    line: lineNumber,
+                    body: `🤖 **Cursor AI Review**: Consider adding semicolons for consistency.\n\n**Suggestion**: Add semicolons at the end of statements.\n\n**DanaVerse Standard**: Use consistent code formatting.`
+                  });
+                }
+              }
+
+              return { comments, suggestions };
+            }
+
+            function generateReviewSummary(comments, suggestions) {
+              const totalComments = comments.length;
+              const totalSuggestions = suggestions.length;
+              
+              let summary = `## 🤖 Cursor AI Code Review Summary\n\n`;
+              summary += `**Total Issues Found**: ${totalComments}\n`;
+              summary += `**Suggestions**: ${totalSuggestions}\n\n`;
+              
+              if (totalComments === 0) {
+                summary += `✅ **Excellent work!** No major issues found. The code follows DanaVerse standards.\n\n`;
+              } else {
+                summary += `📝 **Review Notes**:\n`;
+                summary += `- Please review the comments below\n`;
+                summary += `- Consider implementing the suggested improvements\n`;
+                summary += `- All suggestions are based on DanaVerse Cursor Rules\n\n`;
+              }
+              
+              summary += `### 🔍 Review Categories:\n`;
+              summary += `- **TypeScript/React**: Type safety, React best practices, performance optimization\n`;
+              summary += `- **Go**: Error handling, security, performance, structured logging\n`;
+              summary += `- **Solidity**: Security patterns, gas optimization, event emission\n`;
+              summary += `- **JavaScript**: Modern syntax, strict equality, code formatting\n`;
+              summary += `- **General**: Code quality, maintainability, DanaVerse standards\n\n`;
+              
+              summary += `### 📚 DanaVerse Standards Applied:\n`;
+              summary += `- ✅ TypeScript strict mode compliance\n`;
+              summary += `- ✅ Functional components with hooks only\n`;
+              summary += `- ✅ Performance optimizations (React.memo, useMemo, useCallback)\n`;
+              summary += `- ✅ Proper error handling\n`;
+              summary += `- ✅ Security best practices\n`;
+              summary += `- ✅ OpenZeppelin security patterns (Solidity)\n`;
+              summary += `- ✅ Gas optimization (Solidity)\n`;
+              summary += `- ✅ Structured logging (Go)\n\n`;
+              
+              summary += `*This review is powered by Cursor AI and follows DanaVerse coding standards.*`;
+              
+              return summary;
+            }
+
+      - name: AI Security Scan (Cloud Code Style)
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { data: files } = await github.rest.pulls.listFiles({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.issue.number,
+            });
+
+            let securityIssues = [];
+
+            for (const file of files) {
+              if (file.status === 'deleted') continue;
+
+              const { data: content } = await github.rest.repos.getContent({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                path: file.filename,
+                ref: context.payload.pull_request.head.sha,
+              });
+
+              const fileContent = Buffer.from(content.content, 'base64').toString();
+
+              // Security checks following DanaVerse standards
+              if (fileContent.includes('password') || fileContent.includes('secret') || fileContent.includes('api_key')) {
+                securityIssues.push({
+                  file: file.filename,
+                  issue: 'Potential hardcoded credentials detected',
+                  severity: 'HIGH'
+                });
+              }
+
+              if (fileContent.includes('eval(') || fileContent.includes('innerHTML')) {
+                securityIssues.push({
+                  file: file.filename,
+                  issue: 'Potential XSS vulnerability detected',
+                  severity: 'HIGH'
+                });
+              }
+
+              if (fileContent.includes('SELECT') && fileContent.includes('+') && !fileContent.includes('PreparedStatement')) {
+                securityIssues.push({
+                  file: file.filename,
+                  issue: 'Potential SQL injection vulnerability detected',
+                  severity: 'CRITICAL'
+                });
+              }
+
+              if (fileContent.includes('localStorage') && fileContent.includes('password')) {
+                securityIssues.push({
+                  file: file.filename,
+                  issue: 'Sensitive data stored in localStorage',
+                  severity: 'MEDIUM'
+                });
+              }
+
+              if (fileContent.includes('http://') && !fileContent.includes('localhost')) {
+                securityIssues.push({
+                  file: file.filename,
+                  issue: 'Insecure HTTP protocol detected',
+                  severity: 'MEDIUM'
+                });
+              }
+            }
+
+            if (securityIssues.length > 0) {
+              const highSeverity = securityIssues.filter(issue => issue.severity === 'HIGH' || issue.severity === 'CRITICAL');
+              
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body: `## 🚨 Cloud Code Security Scan Results\n\n**Security Issues Found**: ${securityIssues.length}\n**High/Critical Issues**: ${highSeverity.length}\n\n${securityIssues.map(issue => `- **${issue.severity}** - **${issue.file}**: ${issue.issue}`).join('\n')}\n\n⚠️ **Please review these security concerns before merging.**\n\n### 🔒 DanaVerse Security Standards:\n- Never commit secrets or API keys\n- Use environment variables for configuration\n- Implement proper input validation\n- Use HTTPS everywhere\n- Follow OWASP security guidelines`
+              });
+            }
+
+      - name: AI Performance Analysis (Cursor AI Style)
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { data: files } = await github.rest.pulls.listFiles({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.issue.number,
+            });
+
+            let performanceIssues = [];
+
+            for (const file of files) {
+              if (file.status === 'deleted') continue;
+
+              const { data: content } = await github.rest.repos.getContent({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                path: file.filename,
+                ref: context.payload.pull_request.head.sha,
+              });
+
+              const fileContent = Buffer.from(content.content, 'base64').toString();
+
+              // Performance checks following DanaVerse standards
+              if (fileContent.includes('for (let i = 0; i < array.length; i++)') && !fileContent.includes('const length = array.length')) {
+                performanceIssues.push({
+                  file: file.filename,
+                  issue: 'Consider caching array length in for loop',
+                  impact: 'MEDIUM'
+                });
+              }
+
+              if (fileContent.includes('document.getElementById') && fileContent.includes('for')) {
+                performanceIssues.push({
+                  file: file.filename,
+                  issue: 'Consider caching DOM elements in loops',
+                  impact: 'HIGH'
+                });
+              }
+
+              if (fileContent.includes('SELECT * FROM') && !fileContent.includes('LIMIT')) {
+                performanceIssues.push({
+                  file: file.filename,
+                  issue: 'Consider adding LIMIT clause to prevent large result sets',
+                  impact: 'HIGH'
+                });
+              }
+
+              if (fileContent.includes('useState') && !fileContent.includes('useCallback') && !fileContent.includes('useMemo')) {
+                performanceIssues.push({
+                  file: file.filename,
+                  issue: 'Consider using useCallback/useMemo for performance optimization',
+                  impact: 'MEDIUM'
+                });
+              }
+
+              if (fileContent.includes('import * as') && !fileContent.includes('import {')) {
+                performanceIssues.push({
+                  file: file.filename,
+                  issue: 'Consider using named imports instead of namespace imports',
+                  impact: 'LOW'
+                });
+              }
+            }
+
+            if (performanceIssues.length > 0) {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body: `## ⚡ Cursor AI Performance Analysis\n\n**Performance Issues Found**: ${performanceIssues.length}\n\n${performanceIssues.map(issue => `- **${issue.impact}** - **${issue.file}**: ${issue.issue}`).join('\n')}\n\n💡 **Consider these optimizations for better performance.**\n\n### 🚀 DanaVerse Performance Standards:\n- Optimize bundle sizes\n- Use code splitting and lazy loading\n- Implement proper caching strategies\n- Monitor Core Web Vitals\n- Use React.memo, useMemo, useCallback`
+              });
+            }

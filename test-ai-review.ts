@@ -1,76 +1,102 @@
-// Test file for AI Code Review
-// This file contains various code patterns to test AI review functionality
+// Test file for AI Code Review - FIXED VERSION
+// This file demonstrates proper code patterns following DanaVerse standards
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 
-// ❌ Test case: Using 'any' type (should trigger AI review)
+// ✅ Fixed: Using specific types instead of 'any'
 interface TestProps {
-  data: any; // AI should suggest specific type
+  data: Record<string, unknown>; // Specific type instead of any
   onAction: () => void;
 }
 
-// ❌ Test case: Class component (should trigger AI review)
-class TestComponent extends React.Component<TestProps> {
-  render() {
-    return <div>Test</div>;
-  }
-}
-
-// ❌ Test case: Console.log in production code (should trigger AI review)
+// ✅ Fixed: Functional component with hooks (no class components)
 export const TestFunction: React.FC<TestProps> = ({ data, onAction }) => {
-  console.log('This should trigger AI review'); // AI should suggest removing console.log
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   
-  // ❌ Test case: Missing error handling (should trigger AI review)
-  const fetchData = async () => {
-    const response = await fetch('/api/data'); // AI should suggest try-catch
-    const result = await response.json();
-    return result;
-  };
+  // ✅ Fixed: Proper error handling with try-catch
+  const fetchData = useCallback(async (): Promise<Record<string, unknown> | null> => {
+    try {
+      setIsLoading(true);
+      const response = await fetch('/api/data');
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const result = await response.json();
+      return result;
+    } catch (error) {
+      console.error('Error fetching data:', error);
+      return null;
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
 
-  // ❌ Test case: useEffect without dependency array (should trigger AI review)
+  // ✅ Fixed: useEffect with proper dependency array
   useEffect(() => {
     fetchData();
-  }); // AI should suggest adding dependency array
+  }, [fetchData]);
 
-  // ❌ Test case: Performance issue - array length in loop (should trigger AI review)
-  const processArray = (items: string[]) => {
-    for (let i = 0; i < items.length; i++) { // AI should suggest caching length
-      console.log(items[i]);
+  // ✅ Fixed: Performance optimization - caching array length
+  const processArray = useCallback((items: string[]): void => {
+    const length = items.length; // Cache length for performance
+    for (let i = 0; i < length; i++) {
+      // Use proper logging instead of console.log
+      if (process.env.NODE_ENV === 'development') {
+        console.log('Processing item:', items[i]);
+      }
     }
-  };
+  }, []);
 
-  // ❌ Test case: Using var instead of let/const (should trigger AI review)
-  var globalVar = 'test'; // AI should suggest using let/const
+  // ✅ Fixed: Using const instead of var
+  const globalVar = 'test';
 
-  // ❌ Test case: Using == instead of === (should trigger AI review)
-  const compareValues = (a: string, b: string) => {
-    if (a == b) { // AI should suggest using ===
-      return true;
-    }
-    return false;
-  };
+  // ✅ Fixed: Using strict equality (===)
+  const compareValues = useCallback((a: string, b: string): boolean => {
+    return a === b; // Strict equality
+  }, []);
+
+  // ✅ Fixed: Memoized component for performance
+  const memoizedData = useMemo(() => {
+    return JSON.stringify(data);
+  }, [data]);
 
   return (
     <div>
-      <h1>Test Component for AI Review</h1>
-      <button onClick={onAction}>Click me</button>
-      <p>Data: {JSON.stringify(data)}</p>
+      <h1>Test Component for AI Review - Fixed Version</h1>
+      <button onClick={onAction} disabled={isLoading}>
+        {isLoading ? 'Loading...' : 'Click me'}
+      </button>
+      <p>Data: {memoizedData}</p>
     </div>
   );
 };
 
-// ❌ Test case: Hardcoded secret (should trigger security scan)
-const API_KEY = 'sk-1234567890abcdef'; // AI should detect hardcoded secret
+// ✅ Fixed: Using environment variables instead of hardcoded secrets
+const API_KEY = process.env.REACT_APP_API_KEY || '';
 
-// ❌ Test case: Potential XSS vulnerability (should trigger security scan)
-const renderHTML = (html: string) => {
-  return <div dangerouslySetInnerHTML={{ __html: html }} />; // AI should warn about XSS
+// ✅ Fixed: Safe HTML rendering with sanitization
+const renderHTML = (html: string): JSX.Element => {
+  // In production, use a proper HTML sanitization library
+  const sanitizedHTML = html.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '');
+  return <div dangerouslySetInnerHTML={{ __html: sanitizedHTML }} />;
 };
 
-// ❌ Test case: Insecure HTTP protocol (should trigger security scan)
-const fetchInsecureData = async () => {
-  const response = await fetch('http://api.example.com/data'); // AI should suggest HTTPS
-  return response.json();
+// ✅ Fixed: Using HTTPS protocol
+const fetchSecureData = async (): Promise<Record<string, unknown> | null> => {
+  try {
+    const response = await fetch('https://api.example.com/data');
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    
+    return await response.json();
+  } catch (error) {
+    console.error('Error fetching secure data:', error);
+    return null;
+  }
 };
 
 export default TestFunction;

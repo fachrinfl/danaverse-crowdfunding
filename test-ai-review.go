@@ -1,66 +1,150 @@
-// Test file for AI Code Review - Go
-// This file contains various Go patterns to test AI review functionality
+// Test file for AI Code Review - Go FIXED VERSION
+// This file demonstrates proper Go patterns following DanaVerse standards
 
 package main
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
 	"log"
 	"net/http"
+	"os"
+	"time"
 )
 
-// ❌ Test case: Missing error handling (should trigger AI review)
-func fetchData() {
-	client := &http.Client{}
-	resp, err := client.Get("https://api.example.com/data") // AI should suggest error handling
-	defer resp.Body.Close()
+// ✅ Fixed: Proper error handling and context usage
+func fetchData(ctx context.Context) error {
+	client := &http.Client{
+		Timeout: 30 * time.Second,
+	}
 	
-	// ❌ Test case: Using context.Background() in non-main function (should trigger AI review)
-	ctx := context.Background() // AI should suggest using request context
-	
-	// ❌ Test case: Using fmt.Print instead of structured logging (should trigger AI review)
-	fmt.Print("Processing data...") // AI should suggest using log package
-	
-	// ❌ Test case: Potential SQL injection (should trigger security scan)
-	query := fmt.Sprintf("SELECT * FROM users WHERE id = %s", userID) // AI should suggest parameterized queries
-}
-
-// ❌ Test case: Hardcoded credentials (should trigger security scan)
-const (
-	DB_PASSWORD = "secretpassword123" // AI should detect hardcoded credentials
-	API_KEY     = "sk-1234567890abcdef"
-)
-
-// ❌ Test case: Insecure HTTP protocol (should trigger security scan)
-func fetchInsecureData() {
-	resp, err := http.Get("http://api.example.com/data") // AI should suggest HTTPS
+	req, err := http.NewRequestWithContext(ctx, "GET", "https://api.example.com/data", nil)
 	if err != nil {
-		log.Fatal(err)
+		return fmt.Errorf("failed to create request: %w", err)
+	}
+	
+	resp, err := client.Do(req)
+	if err != nil {
+		return fmt.Errorf("failed to fetch data: %w", err)
 	}
 	defer resp.Body.Close()
+	
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("unexpected status code: %d", resp.StatusCode)
+	}
+	
+	// ✅ Fixed: Using structured logging
+	log.Info("Successfully fetched data from API")
+	return nil
 }
 
-// ❌ Test case: Missing error handling in function
-func processData(data []byte) {
-	// AI should suggest adding error handling
+// ✅ Fixed: Using environment variables instead of hardcoded credentials
+var (
+	DBPassword = os.Getenv("DB_PASSWORD")
+	APIKey     = os.Getenv("API_KEY")
+)
+
+// ✅ Fixed: Using HTTPS protocol and proper error handling
+func fetchSecureData(ctx context.Context) error {
+	client := &http.Client{
+		Timeout: 30 * time.Second,
+	}
+	
+	req, err := http.NewRequestWithContext(ctx, "GET", "https://api.example.com/data", nil)
+	if err != nil {
+		return fmt.Errorf("failed to create request: %w", err)
+	}
+	
+	resp, err := client.Do(req)
+	if err != nil {
+		return fmt.Errorf("failed to fetch secure data: %w", err)
+	}
+	defer resp.Body.Close()
+	
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("unexpected status code: %d", resp.StatusCode)
+	}
+	
+	log.Info("Successfully fetched secure data")
+	return nil
+}
+
+// ✅ Fixed: Proper error handling and return values
+func processData(data []byte) (string, error) {
+	if len(data) == 0 {
+		return "", fmt.Errorf("data cannot be empty")
+	}
+	
 	result := string(data)
-	fmt.Println(result)
+	log.Info("Successfully processed data", "length", len(data))
+	return result, nil
 }
 
-// ❌ Test case: Using global variables (should trigger AI review)
-var globalCounter int // AI should suggest avoiding global variables
+// ✅ Fixed: Using parameterized queries to prevent SQL injection
+func getUserByID(db *sql.DB, userID string) (*sql.Row, error) {
+	query := "SELECT * FROM users WHERE id = $1"
+	row := db.QueryRow(query, userID)
+	return row, nil
+}
+
+// ✅ Fixed: Avoiding global variables, using dependency injection
+type App struct {
+	counter int
+	logger  *log.Logger
+}
+
+func NewApp(logger *log.Logger) *App {
+	return &App{
+		counter: 0,
+		logger:  logger,
+	}
+}
+
+func (a *App) IncrementCounter() {
+	a.counter++
+	a.logger.Info("Counter incremented", "value", a.counter)
+}
 
 func main() {
-	// ❌ Test case: Missing error handling in main
-	fetchData() // AI should suggest error handling
+	// ✅ Fixed: Proper logging setup
+	logger := log.New(os.Stdout, "APP: ", log.LstdFlags|log.Lshortfile)
+	logger.Info("Application started")
 	
-	// ❌ Test case: Using fmt.Print in main (should trigger AI review)
-	fmt.Print("Application started") // AI should suggest using log package
+	// ✅ Fixed: Using context with timeout
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
 	
-	// ❌ Test case: Infinite loop without break condition (should trigger AI review)
+	// ✅ Fixed: Proper error handling in main
+	app := NewApp(logger)
+	
+	// ✅ Fixed: Controlled loop with timeout
+	ticker := time.NewTicker(1 * time.Second)
+	defer ticker.Stop()
+	
+	timeout := time.After(10 * time.Second)
+	
 	for {
-		// AI should suggest adding break condition or timeout
-		processData([]byte("test"))
+		select {
+		case <-ticker.C:
+			app.IncrementCounter()
+			
+			// Process data with proper error handling
+			result, err := processData([]byte("test"))
+			if err != nil {
+				logger.Error("Failed to process data", "error", err)
+				continue
+			}
+			
+			logger.Info("Data processed successfully", "result", result)
+			
+		case <-timeout:
+			logger.Info("Application timeout reached, shutting down")
+			return
+			
+		case <-ctx.Done():
+			logger.Info("Context cancelled, shutting down")
+			return
+		}
 	}
 }

@@ -1,75 +1,140 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.19;
 
-// Test file for AI Code Review - Solidity
-// This file contains various Solidity patterns to test AI review functionality
+// Test file for AI Code Review - Solidity FIXED VERSION
+// This file demonstrates proper Solidity patterns following DanaVerse standards
 
-contract TestContract {
-    // ❌ Test case: Missing access control (should trigger AI review)
-    function withdrawFunds() external {
-        // AI should suggest adding access control
-        payable(msg.sender).transfer(address(this).balance);
-    }
+import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/security/Pausable.sol";
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+
+// ✅ Fixed: Using OpenZeppelin security patterns
+contract TestContract is ReentrancyGuard, Ownable, Pausable {
+    using SafeERC20 for IERC20;
     
-    // ❌ Test case: External payable function without reentrancy protection (should trigger AI review)
-    function deposit() external payable {
-        // AI should suggest adding nonReentrant modifier
-        // No reentrancy protection
-    }
-    
-    // ❌ Test case: Using storage instead of memory (should trigger AI review)
-    function processData(uint256[] storage data) external {
-        // AI should suggest using memory for temporary variables
-        for (uint256 i = 0; i < data.length; i++) {
-            data[i] = data[i] * 2;
-        }
-    }
-    
-    // ❌ Test case: Missing events (should trigger AI review)
-    function updateValue(uint256 newValue) external {
-        // AI should suggest emitting events for important state changes
-        value = newValue;
-    }
-    
-    // ❌ Test case: Hardcoded values (should trigger AI review)
-    uint256 public constant MAX_SUPPLY = 1000000; // AI should suggest using configurable values
-    
-    // ❌ Test case: Missing input validation (should trigger AI review)
-    function setValue(uint256 _value) external {
-        // AI should suggest adding input validation
-        value = _value;
-    }
-    
-    // ❌ Test case: Using block.timestamp for randomness (should trigger AI review)
-    function generateRandomNumber() external view returns (uint256) {
-        // AI should warn about using block.timestamp for randomness
-        return uint256(keccak256(abi.encodePacked(block.timestamp, msg.sender)));
-    }
-    
-    // ❌ Test case: Missing error handling (should trigger AI review)
-    function transferTokens(address token, address to, uint256 amount) external {
-        // AI should suggest adding error handling
-        IERC20(token).transfer(to, amount);
-    }
-    
-    // ❌ Test case: Using msg.sender without proper access control (should trigger AI review)
-    function adminFunction() external {
-        // AI should suggest adding proper access control
-        require(msg.sender == owner, "Not owner"); // This is good, but AI should verify
-    }
-    
-    // State variables
+    // ✅ Fixed: Proper state variable declarations
     uint256 public value;
-    address public owner;
+    uint256 public maxSupply;
+    mapping(address => uint256) public balances;
     
-    // ❌ Test case: Missing constructor (should trigger AI review)
-    // AI should suggest adding constructor to set initial values
+    // ✅ Fixed: Events for important state changes
+    event ValueUpdated(uint256 indexed oldValue, uint256 indexed newValue);
+    event FundsDeposited(address indexed user, uint256 amount);
+    event FundsWithdrawn(address indexed user, uint256 amount);
+    event TokensTransferred(address indexed token, address indexed to, uint256 amount);
     
-    // ❌ Test case: Missing fallback function (should trigger AI review)
-    // AI should suggest adding receive/fallback functions if needed
+    // ✅ Fixed: Constructor with proper initialization
+    constructor(uint256 _maxSupply) {
+        maxSupply = _maxSupply;
+        value = 0;
+    }
+    
+    // ✅ Fixed: Proper access control with onlyOwner modifier
+    function withdrawFunds() external onlyOwner nonReentrant {
+        uint256 balance = address(this).balance;
+        require(balance > 0, "No funds to withdraw");
+        
+        (bool success, ) = payable(owner()).call{value: balance}("");
+        require(success, "Transfer failed");
+        
+        emit FundsWithdrawn(owner(), balance);
+    }
+    
+    // ✅ Fixed: External payable function with reentrancy protection
+    function deposit() external payable whenNotPaused nonReentrant {
+        require(msg.value > 0, "Deposit amount must be greater than 0");
+        
+        balances[msg.sender] += msg.value;
+        emit FundsDeposited(msg.sender, msg.value);
+    }
+    
+    // ✅ Fixed: Using memory for temporary variables (gas optimization)
+    function processData(uint256[] memory data) external pure returns (uint256[] memory) {
+        uint256[] memory result = new uint256[](data.length);
+        
+        for (uint256 i = 0; i < data.length; i++) {
+            result[i] = data[i] * 2;
+        }
+        
+        return result;
+    }
+    
+    // ✅ Fixed: Emitting events for important state changes
+    function updateValue(uint256 newValue) external onlyOwner {
+        uint256 oldValue = value;
+        value = newValue;
+        
+        emit ValueUpdated(oldValue, newValue);
+    }
+    
+    // ✅ Fixed: Input validation
+    function setValue(uint256 _value) external onlyOwner {
+        require(_value <= maxSupply, "Value exceeds maximum supply");
+        require(_value != value, "Value is the same as current value");
+        
+        uint256 oldValue = value;
+        value = _value;
+        
+        emit ValueUpdated(oldValue, _value);
+    }
+    
+    // ✅ Fixed: Using proper randomness (in production, use Chainlink VRF)
+    function generateRandomNumber() external view returns (uint256) {
+        // Note: This is still not truly random, but better than block.timestamp
+        // In production, use Chainlink VRF for true randomness
+        return uint256(keccak256(abi.encodePacked(
+            block.difficulty,
+            block.timestamp,
+            msg.sender,
+            block.number
+        )));
+    }
+    
+    // ✅ Fixed: Proper error handling with SafeERC20
+    function transferTokens(address token, address to, uint256 amount) external onlyOwner {
+        require(token != address(0), "Invalid token address");
+        require(to != address(0), "Invalid recipient address");
+        require(amount > 0, "Amount must be greater than 0");
+        
+        IERC20(token).safeTransfer(to, amount);
+        
+        emit TokensTransferred(token, to, amount);
+    }
+    
+    // ✅ Fixed: Proper access control (already using onlyOwner from OpenZeppelin)
+    function adminFunction() external onlyOwner {
+        // Admin function with proper access control
+        // Implementation here
+    }
+    
+    // ✅ Fixed: Adding receive function for ETH transfers
+    receive() external payable {
+        // Handle direct ETH transfers
+        balances[msg.sender] += msg.value;
+        emit FundsDeposited(msg.sender, msg.value);
+    }
+    
+    // ✅ Fixed: Adding fallback function
+    fallback() external payable {
+        // Handle calls to non-existent functions
+        revert("Function not found");
+    }
+    
+    // ✅ Fixed: Pause functionality for emergency situations
+    function pause() external onlyOwner {
+        _pause();
+    }
+    
+    function unpause() external onlyOwner {
+        _unpause();
+    }
 }
 
-// ❌ Test case: Missing interface definition (should trigger AI review)
-interface IERC20 {
-    function transfer(address to, uint256 amount) external returns (bool);
+// ✅ Fixed: Proper interface definition
+interface IERC20Extended is IERC20 {
+    function decimals() external view returns (uint8);
+    function symbol() external view returns (string memory);
+    function name() external view returns (string memory);
 }

@@ -1,0 +1,28 @@
+{
+  "name": "mobile",
+  "version": "1.0.0",
+  "main": "index.ts",
+  "scripts": {
+    "start": "expo start",
+    "android": "expo run:android",
+    "ios": "expo run:ios",
+    "web": "expo start --web",
+    "reset:module:ios": "watchman watch-del-all && rm -rf $TMPDIR/metro-* $TMPDIR/haste-* && cd ios && rm -rf build Pods && rm -rf ~/Library/Developer/Xcode/DerivedData/* && pod cache clean --all && cd ..",
+    "reset:module:android": "watchman watch-del-all && rm -rf $TMPDIR/metro-* $TMPDIR/haste-* && cd android && ./gradlew clean && cd ..",
+    "prebuild:clean": "echo 'Y' | expo prebuild --clean",
+    "reset:module": "rm -rf android && rm -rf ios && pnpm install --force && pnpm run prebuild:clean && pnpm run reset:module:ios && pnpm run reset:module:android",
+    "reset:full": "../../scripts/reset.sh mobile"
+  },
+  "dependencies": {
+    "expo": "~53.0.22",
+    "expo-status-bar": "~2.2.3",
+    "react": "19.0.0",
+    "react-native": "0.79.6"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.25.2",
+    "@types/react": "~19.0.10",
+    "typescript": "~5.8.3"
+  },
+  "private": true
+}

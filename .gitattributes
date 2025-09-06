@@ -1,0 +1,150 @@
+# DanaVerse - Git Attributes for Line Endings and File Handling
+
+# ===========================================
+# LINE ENDINGS
+# ===========================================
+
+# Set default behavior to automatically normalize line endings
+* text=auto
+
+# Explicitly declare text files you want to always be normalized and converted
+# to native line endings on checkout
+*.md text
+*.txt text
+*.json text
+*.yml text
+*.yaml text
+*.xml text
+*.html text
+*.css text
+*.js text
+*.ts text
+*.tsx text
+*.jsx text
+*.vue text
+*.svelte text
+*.go text
+*.rs text
+*.py text
+*.java text
+*.c text
+*.cpp text
+*.h text
+*.hpp text
+*.cs text
+*.php text
+*.rb text
+*.sh text
+*.bash text
+*.zsh text
+*.fish text
+*.ps1 text
+*.bat text
+*.cmd text
+
+# ===========================================
+# BINARY FILES
+# ===========================================
+
+# Declare files that will always have CRLF line endings on checkout
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.svg binary
+*.woff binary
+*.woff2 binary
+*.ttf binary
+*.eot binary
+*.otf binary
+*.pdf binary
+*.zip binary
+*.tar binary
+*.gz binary
+*.rar binary
+*.7z binary
+*.exe binary
+*.dll binary
+*.so binary
+*.dylib binary
+*.app binary
+*.ipa binary
+*.apk binary
+*.deb binary
+*.rpm binary
+
+# ===========================================
+# LINGUIST OVERRIDES
+# ===========================================
+
+# Mark generated files as generated
+*.generated.* linguist-generated=true
+*.gen.* linguist-generated=true
+*.auto.* linguist-generated=true
+
+# Mark vendor directories as vendored
+vendor/ linguist-vendored=true
+node_modules/ linguist-vendored=true
+lib/ linguist-vendored=true
+
+# Mark documentation as documentation
+*.md linguist-documentation=true
+docs/ linguist-documentation=true
+
+# ===========================================
+# DIFF SETTINGS
+# ===========================================
+
+# Don't show diffs for binary files
+*.png diff
+*.jpg diff
+*.jpeg diff
+*.gif diff
+*.ico diff
+*.svg diff
+*.woff diff
+*.woff2 diff
+*.ttf diff
+*.eot diff
+*.otf diff
+*.pdf diff
+*.zip diff
+*.tar diff
+*.gz diff
+*.rar diff
+*.7z diff
+*.exe diff
+*.dll diff
+*.so diff
+*.dylib diff
+*.app diff
+*.ipa diff
+*.apk diff
+*.deb diff
+*.rpm diff
+
+# ===========================================
+# MERGE STRATEGIES
+# ===========================================
+
+# Use union merge for package files
+package.json merge=union
+package-lock.json merge=union
+pnpm-lock.yaml merge=union
+yarn.lock merge=union
+go.mod merge=union
+go.sum merge=union
+Cargo.toml merge=union
+Cargo.lock merge=union
+
+# ===========================================
+# FILTERS
+# ===========================================
+
+# Clean and smudge filters for secrets
+*.env filter=git-crypt diff=git-crypt
+*.key filter=git-crypt diff=git-crypt
+*.pem filter=git-crypt diff=git-crypt
+*.p12 filter=git-crypt diff=git-crypt
+*.jks filter=git-crypt diff=git-crypt

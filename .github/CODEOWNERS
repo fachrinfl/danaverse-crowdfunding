@@ -1,0 +1,66 @@
+# DanaVerse - Code Owners
+# This file defines who is responsible for different parts of the codebase
+
+# Global owners
+* @danaverse-team
+
+# Root level files
+/README.md @danaverse-team
+/.github/ @danaverse-team
+/.gitignore @danaverse-team
+/.gitattributes @danaverse-team
+/package.json @danaverse-team
+/pnpm-workspace.yaml @danaverse-team
+/turbo.json @danaverse-team
+
+# Documentation
+/docs/ @danaverse-team
+*.md @danaverse-team
+
+# Web Application
+/apps/web/ @danaverse-web-team
+/apps/web/**/*.tsx @danaverse-web-team
+/apps/web/**/*.ts @danaverse-web-team
+/apps/web/**/*.css @danaverse-web-team
+
+# Mobile Application
+/apps/mobile/ @danaverse-mobile-team
+/apps/mobile/**/*.tsx @danaverse-mobile-team
+/apps/mobile/**/*.ts @danaverse-mobile-team
+/apps/mobile/**/*.json @danaverse-mobile-team
+
+# API Backend
+/apps/api/ @danaverse-api-team
+/apps/api/**/*.go @danaverse-api-team
+/apps/api/**/*.sql @danaverse-api-team
+
+# Smart Contracts
+/contracts/ @danaverse-contracts-team
+/contracts/**/*.sol @danaverse-contracts-team
+/contracts/**/*.t.sol @danaverse-contracts-team
+
+# Infrastructure
+/infra/ @danaverse-devops-team
+/infra/**/*.tf @danaverse-devops-team
+/infra/**/*.yml @danaverse-devops-team
+/infra/**/*.yaml @danaverse-devops-team
+
+# Shared Packages
+/packages/ @danaverse-team
+/packages/**/*.ts @danaverse-team
+/packages/**/*.tsx @danaverse-team
+
+# Scripts
+/scripts/ @danaverse-team
+/scripts/**/*.sh @danaverse-team
+
+# CI/CD
+/.github/workflows/ @danaverse-devops-team
+/.github/workflows/**/*.yml @danaverse-devops-team
+/.github/workflows/**/*.yaml @danaverse-devops-team
+
+# Configuration files
+/.eslintrc.js @danaverse-team
+/.prettierrc.js @danaverse-team
+/tsconfig.json @danaverse-team
+/jest.config.js @danaverse-team

@@ -1,0 +1,224 @@
+name: CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+env:
+  PNPM_VERSION: 9
+
+jobs:
+  # Determine which packages have changed
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      api: ${{ steps.changes.outputs.api }}
+      web: ${{ steps.changes.outputs.web }}
+      mobile: ${{ steps.changes.outputs.mobile }}
+      contracts: ${{ steps.changes.outputs.contracts }}
+      packages: ${{ steps.changes.outputs.packages }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: dorny/paths-filter@v2
+        id: changes
+        with:
+          filters: |
+            api:
+              - 'apps/api/**'
+              - 'packages/**'
+              - 'package.json'
+              - 'pnpm-workspace.yaml'
+              - 'turbo.json'
+            web:
+              - 'apps/web/**'
+              - 'packages/**'
+              - 'package.json'
+              - 'pnpm-workspace.yaml'
+              - 'turbo.json'
+            mobile:
+              - 'apps/mobile/**'
+              - 'packages/**'
+              - 'package.json'
+              - 'pnpm-workspace.yaml'
+              - 'turbo.json'
+            contracts:
+              - 'contracts/**'
+              - 'package.json'
+              - 'pnpm-workspace.yaml'
+              - 'turbo.json'
+            packages:
+              - 'packages/**'
+              - 'package.json'
+              - 'pnpm-workspace.yaml'
+              - 'turbo.json'
+
+  # Lint and test matrix
+  build-test:
+    runs-on: ubuntu-latest
+    needs: changes
+    if: needs.changes.outputs.api == 'true' || needs.changes.outputs.web == 'true' || needs.changes.outputs.mobile == 'true' || needs.changes.outputs.contracts == 'true' || needs.changes.outputs.packages == 'true'
+    strategy:
+      matrix:
+        project: [api, web, mobile, contracts]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 'lts/*'
+
+      - name: Setup PNPM
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: Get PNPM store directory
+        shell: bash
+        run: |
+          echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
+
+      - name: Setup PNPM cache
+        uses: actions/cache@v3
+        with:
+          path: ${{ env.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      # API specific steps
+      - name: Setup Go
+        if: matrix.project == 'api'
+        uses: actions/setup-go@v4
+        with:
+          go-version: '1.22'
+
+      - name: Install Go dependencies
+        if: matrix.project == 'api'
+        run: |
+          cd apps/api
+          go mod download
+
+      - name: Lint Go code
+        if: matrix.project == 'api'
+        run: |
+          cd apps/api
+          go vet ./...
+          go fmt ./...
+
+      - name: Test Go code
+        if: matrix.project == 'api'
+        run: |
+          cd apps/api
+          go test -v ./...
+
+      # Web specific steps
+      - name: Lint web code
+        if: matrix.project == 'web'
+        run: |
+          cd apps/web
+          pnpm lint
+
+      - name: Type check web code
+        if: matrix.project == 'web'
+        run: |
+          cd apps/web
+          pnpm type-check
+
+      - name: Test web code
+        if: matrix.project == 'web'
+        run: |
+          cd apps/web
+          pnpm test
+
+      # Mobile specific steps
+      - name: Lint mobile code
+        if: matrix.project == 'mobile'
+        run: |
+          cd apps/mobile
+          pnpm lint
+
+      - name: Type check mobile code
+        if: matrix.project == 'mobile'
+        run: |
+          cd apps/mobile
+          pnpm type-check
+
+      # Contracts specific steps
+      - name: Setup Foundry
+        if: matrix.project == 'contracts'
+        run: |
+          curl -L https://foundry.paradigm.xyz | bash
+          export PATH="$PATH:$HOME/.foundry/bin"
+          foundryup
+
+      - name: Install contract dependencies
+        if: matrix.project == 'contracts'
+        run: |
+          cd contracts
+          forge install
+
+      - name: Lint contracts
+        if: matrix.project == 'contracts'
+        run: |
+          cd contracts
+          forge fmt --check
+          forge test
+
+  # Build all packages
+  build:
+    runs-on: ubuntu-latest
+    needs: [changes, build-test]
+    if: always() && (needs.build-test.result == 'success' || needs.build-test.result == 'skipped')
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 'lts/*'
+
+      - name: Setup PNPM
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build packages
+        run: pnpm build
+
+  # Security audit
+  security:
+    runs-on: ubuntu-latest
+    needs: changes
+    if: needs.changes.outputs.api == 'true' || needs.changes.outputs.web == 'true' || needs.changes.outputs.mobile == 'true' || needs.changes.outputs.contracts == 'true' || needs.changes.outputs.packages == 'true'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 'lts/*'
+
+      - name: Setup PNPM
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run security audit
+        run: pnpm audit --audit-level moderate

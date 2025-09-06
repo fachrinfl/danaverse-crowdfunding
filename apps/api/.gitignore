@@ -1,0 +1,52 @@
+# API Specific .gitignore
+
+# Binaries
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Test binary
+*.test
+
+# Coverage
+*.out
+
+# Dependencies
+vendor/
+
+# Environment
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Logs
+*.log
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# Go workspace
+go.work
+
+# OS
+.DS_Store
+
+# IDE
+.vscode/
+.idea/
+
+# Temporary
+*.tmp
+*.temp
